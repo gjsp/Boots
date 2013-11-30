@@ -1,0 +1,30 @@
+﻿body{
+	margin:0;
+	padding:0;
+	background:url(img/header_bg.png) repeat-x;
+	font-family:   Tahoma, Arial, Verdana, Helvetica, sans-serif;
+	font-size:13px;
+}
+
+.tbPFTopic
+{
+    font-family:Tahoma;
+    font-size:11px;
+    border-bottom:1px solid #2c2b2b;
+    color:#000000;
+    }
+.tbPFTopic TD
+{
+    border-left:1px solid #2c2b2b;
+    border-right:1px solid #2c2b2b;
+    line-height:14px;
+}
+
+div.scroll9
+{
+    width:900;
+    overflow:scroll;    
+    border-left:1px solid #000000;
+    overflow-y:hidden;
+    overflow-x:auto;
+}
