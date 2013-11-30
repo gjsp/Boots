@@ -51,8 +51,8 @@ Public Class clsPfm
 "					  CASE WHEN (lfl.TotalRevenue = 0 or lfl.TotalRevenue is null) THEN 'N/A' ELSE CAST(CAST((mtd.TotalRevenue/lfl.TotalRevenue)-1 AS DECIMAL(18,1)) AS varchar)+ '%' END AS [% LFL], " & _
 "					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
 "                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses as OPEX, " & _
-"					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y' " & _
-"                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(year,-1,DATEADD(day,-1,DATEADD(month,1,@eDate))) THEN 'yy' " & _
+"					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
+"                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(year,-1,DATEADD(day,-1,DATEADD(month,1,@eDate))) THEN 'y1' " & _
 "                     ELSE 'n' END AS InDate " & _
 " FROM       (" & _
 "				SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(RETAIL_TESPIncome) AS saleRevenue,SUM(GrossProfit) AS GrossProfit,SUM(AdjustedGrossMargin) AS AdjustedGrossMargin, " & _
@@ -132,7 +132,6 @@ Public Class clsPfm
                     End If
                 Next
 
-
                 Dim rev1 As Double = 0
                 Dim rev2 As Double = 0
                 If dtLFL.Rows.Count > 0 Then
@@ -152,9 +151,6 @@ Public Class clsPfm
                         End If
                     Next
                 End If
-            End If
-            If dt.Rows.Count > 0 Then
-
             End If
             Return dt
         Catch ex As Exception
