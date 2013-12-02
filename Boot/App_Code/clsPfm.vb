@@ -13,6 +13,24 @@ Imports System.Configuration.ConfigurationManager
 Public Class clsPfm
     Public Shared strcon As String = ConfigurationManager.ConnectionStrings("bootsConnectionString").ConnectionString
 
+    Public Shared Function getFullyear(dd As DateTime, lastyear As Boolean) As String
+        Dim str As String = ""
+        If lastyear = True Then
+            If dd.Month < 4 Then
+                str = "FY" + dd.AddYears(-1).ToString("yy") + dd.ToString("/yy") + " & FY" + dd.AddYears(-2).ToString("yy") + dd.AddYears(-1).ToString("/yy")
+            Else
+                str = "FY" + dd.AddYears(0).ToString("yy") + dd.AddYears(1).ToString("/yy") + " & FY" + dd.AddYears(-1).ToString("yy") + dd.AddYears(0).ToString("/yy")
+            End If
+        Else
+            If dd.Month < 4 Then
+                str = "FY" + dd.AddYears(-1).ToString("yy") + dd.ToString("/yy")
+            Else
+                str = "FY" + dd.AddYears(0).ToString("yy") + dd.AddYears(1).ToString("/yy")
+            End If
+        End If
+        Return str
+    End Function
+
     Public Shared Function getPerformance(by As String, bDate As DateTime, eDate As DateTime, rate As String) As DataTable
         '* ดึง costcenter ทั้งหมดมา แยก เป็น 2ชุด 
         '1ชุดที่อยู่ใน วันที่ที่เลือก --> InDate = y
@@ -52,7 +70,7 @@ Public Class clsPfm
 "					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
 "                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses as OPEX, " & _
 "					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
-"                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(year,-1,DATEADD(day,-1,DATEADD(month,1,@eDate))) THEN 'y1' " & _
+"                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(day,-1,@beginNewStoreDate) THEN 'y1' " & _
 "                     ELSE 'n' END AS InDate " & _
 " FROM       (" & _
 "				SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(RETAIL_TESPIncome) AS saleRevenue,SUM(GrossProfit) AS GrossProfit,SUM(AdjustedGrossMargin) AS AdjustedGrossMargin, " & _
@@ -116,7 +134,7 @@ Public Class clsPfm
                 dtLFL = dtTemp.Clone
                 Dim iRow As Integer = -1
                 For Each drTemp As DataRow In dtTemp.Rows
-                    costcenter_code = drTemp(colcostcenter_code).ToString
+                    costcenter_code = drTemp(colCostcenter_code).ToString
                     If dtLFL.Select("costcenter_code = " + costcenter_code + " ").Length = 0 Then
                         dtLFL.ImportRow(drTemp)
                     Else
@@ -396,7 +414,7 @@ Public Class clsPfm
         col.Append("CashOvertage_Shortagefromsales as SumCashOvertage_Shortagefromsales, ")
         col.Append("MiscellenousandOther as SumMiscellenousandOther, ")
         col.Append("StoreTradingProfit__Loss as SumStoreTradingProfit__Loss, ")
-       
+
         col.Append("SWMaintenance as SumSWMaintenance, ")
         col.Append("HWMaintenance as SumHWMaintenance, ")
         col.Append("ITTelecommunications as SumITTelecommunications ")
