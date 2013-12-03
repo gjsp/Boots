@@ -102,7 +102,7 @@
                             </td>
                             <td>
                                 <div>
-                                    Date :
+                                    Month :
                                     <asp:DropDownList ID="ddlMonth" runat="server" CssClass="select2">
                                     </asp:DropDownList>
                                     <asp:DropDownList ID="ddlYear" runat="server" CssClass="select2" AutoPostBack="True">
@@ -167,11 +167,15 @@
                             </asp:BoundField>
                             <asp:BoundField DataField="costcenter_name" HeaderText="Name" />
                             <asp:BoundField DataField="store_name" HeaderText="Store Format" />
-                            <asp:BoundField DataField="saleRevenue" HeaderText="Revenue" DataFormatString="{0:#,000.00}">
+                            <asp:BoundField DataField="Productivity" HeaderText="Productivity/ SQM/MTH" DataFormatString="{0:#,000.00}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
-                            <asp:BoundField DataField="Productivity" HeaderText="Productivity/ SQM/MTH" DataFormatString="{0:#,000.00}">
+                            <asp:BoundField DataField="% LFL" HeaderText="% Revenue LFL">
+                                <HeaderStyle Width="100px" />
+                                <ItemStyle HorizontalAlign="Right" />
+                            </asp:BoundField>
+                            <asp:BoundField DataField="saleRevenue" HeaderText="Revenue" DataFormatString="{0:#,000.00}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
@@ -191,11 +195,7 @@
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
-                            <asp:BoundField DataField="TradingProfit" HeaderText="Trading Profit(THB)" DataFormatString="{0:#,000.00}">
-                                <HeaderStyle Width="100px" />
-                                <ItemStyle HorizontalAlign="Right" />
-                            </asp:BoundField>
-                            <asp:BoundField DataField="% LFL" HeaderText="% LFL">
+                            <asp:BoundField DataField="TradingProfit" HeaderText="Trading Profit" DataFormatString="{0:#,000.00}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>

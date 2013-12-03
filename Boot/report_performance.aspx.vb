@@ -45,12 +45,17 @@ Partial Class report_performance
             ods.SelectParameters("eDate").DefaultValue = DateTime.ParseExact(eDate, ClsManage.formatDateTime, Nothing)
             ods.SelectParameters("by").DefaultValue = ddlBy.SelectedItem.Text
 
+            Dim htmlHead As String = "<div style='font-weight:bold'>" + ddlBy.SelectedValue + " Month {0} Currency Rate " + ddlRate.SelectedItem.Text + " </div>"
             Dim yy As DateTime = Nothing
-            If ddlBy.SelectedItem.Text = clsBts.reportType.MTD.ToString Then
-                yy = DateTime.ParseExact(bDate, ClsManage.formatDateTime, Nothing)
-            Else
+
+            If ddlBy.SelectedItem.Text = "Custom" Then
                 yy = DateTime.ParseExact(eDate, ClsManage.formatDateTime, Nothing)
+                ViewState("excelHead") = String.Format(htmlHead, DateTime.ParseExact(bDate, ClsManage.formatDateTime, Nothing).ToString("MMMM yyyy - ") + yy.ToString("MMMM yyyy"))
+            Else
+                yy = DateTime.ParseExact(bDate, ClsManage.formatDateTime, Nothing)
+                ViewState("excelHead") = String.Format(htmlHead, yy.ToString("MMMM yyyy"))
             End If
+
             ViewState("FY2") = clsPfm.getFullyear(yy, False)
             ViewState("FY1") = clsPfm.getFullyear(yy, True)
 
@@ -348,25 +353,24 @@ Partial Class report_performance
                 Dim resultLFL_L3 As String = getRightCell(ClsManage.convert2PercenLFLGrowth((thisRevenue_L3 / lastRevenue_L3) - 1))
                 Dim resultLFL_Total3 As String = getRightCell(ClsManage.convert2PercenLFLGrowth(((thisRevenue_P3 + thisRevenue_L3) / (lastRevenue_P3 + lastRevenue_L3)) - 1))
 
+                createCels("#B1E4B1", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", (num_L3 + num_P3).ToString, resultProduct3.ToString, resultGross_Total3, resultAdjGross_Total3, resultOPEX_Total3, resultPerTP_Total3, resultTP_Total3, resultLFL_Total3, resultSaleRev_Total3))
+                createCels("#B1E4B1", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_L3.ToString, resultProduct_L3.ToString, resultGross_L3.ToString, resultAdjGross_L3.ToString, resultOPEX_L3, resultPerTP_L3, resultTP_L3, resultLFL_L3, resultSaleRev_L3))
+                createCels("#B1E4B1", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_P3.ToString, resultProduct_P3.ToString, resultGross_P3.ToString, resultAdjGross_P3.ToString, resultOPEX_P3, resultPerTP_P3, resultTP_P3, resultLFL_P3, resultSaleRev_P3))
+                createCels("#B1E4B1", True, e, String.Format("{0}|<div style='text-align:left'>Summary - Exclude New Stores " + ViewState("FY1").ToString + "</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
 
-                createCels("#B1E4B1", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", (num_L3 + num_P3).ToString, resultProduct3.ToString, resultGross_Total3, resultAdjGross_Total3, resultOPEX_Total3, resultPerTP_Total3, resultTP_Total3, resultLFL_Total3, resultSaleRev_Total3))
-                createCels("#B1E4B1", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{8}|{1}|{3}|{3}|{4}|{5}|{6}|{7}|", num_L3.ToString, resultProduct_L3.ToString, resultGross_L3.ToString, resultAdjGross_L3.ToString, resultOPEX_L3, resultPerTP_L3, resultTP_L3, resultLFL_L3, resultSaleRev_L3))
-                createCels("#B1E4B1", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{8}|{1}|{3}|{3}|{4}|{5}|{6}|{7}|", num_P3.ToString, resultProduct_P3.ToString, resultGross_P3.ToString, resultAdjGross_P3.ToString, resultOPEX_P3, resultPerTP_P3, resultTP_P3, resultLFL_P3, resultSaleRev_P3))
-                createCels("#B1E4B1", True, e, String.Format("{0}|<div style='text-align:left'>Summary - Exclude New Stores " + ViewState("FY1").ToString + "</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
-                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFFF99", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", (num_L2 + num_P2).ToString, resultProduct2.ToString, resultGross_Total2, resultAdjGross_Total2, resultOPEX_Total2, resultPerTP_Total2, resultTP_Total2, resultLFL_Total2, resultSaleRev_Total2))
+                createCels("#FFFF99", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_L2.ToString, resultProduct_L2.ToString, resultGross_L2.ToString, resultAdjGross_L2.ToString, resultOPEX_L2, resultPerTP_L2, resultTP_L2, resultLFL_L2, resultSaleRev_L2))
+                createCels("#FFFF99", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_P2.ToString, resultProduct_P2.ToString, resultGross_P2.ToString, resultAdjGross_P2.ToString, resultOPEX_P2, resultPerTP_P2, resultTP_P2, resultLFL_P2, resultSaleRev_P2))
+                createCels("#FFFF99", True, e, String.Format("{0}|<div style='text-align:left'>Summary - Exclude New Stores " + ViewState("FY2").ToString + "</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
 
-
-                createCels("#FFFF99", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", (num_L2 + num_P2).ToString, resultProduct2.ToString, resultGross_Total2, resultAdjGross_Total2, resultOPEX_Total2, resultPerTP_Total2, resultTP_Total2, resultLFL_Total2, resultSaleRev_Total2))
-                createCels("#FFFF99", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", num_L2.ToString, resultProduct_L2.ToString, resultGross_L2.ToString, resultAdjGross_L2.ToString, resultOPEX_L2, resultPerTP_L2, resultTP_L2, resultLFL_L2, resultSaleRev_L2))
-                createCels("#FFFF99", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", num_P2.ToString, resultProduct_P2.ToString, resultGross_P2.ToString, resultAdjGross_P2.ToString, resultOPEX_P2, resultPerTP_P2, resultTP_P2, resultLFL_P2, resultSaleRev_P2))
-                createCels("#FFFF99", True, e, String.Format("{0}|<div style='text-align:left'>Summary - Exclude New Stores " + ViewState("FY2").ToString + "</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
-                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
-
-                createCels("#FFC6AA", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", (num_L1 + num_P1).ToString, resultProduct1.ToString, resultGross_Total1, resultAdjGross_Total1, resultOPEX_Total1, resultPerTP_Total1, resultTP_Total1, resultLFL_Total1, resultSaleRev_Total1))
-                createCels("#FFC6AA", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", num_L1.ToString, resultProduct_L1.ToString, resultGross_L1.ToString, resultAdjGross_L1.ToString, resultOPEX_L1, resultPerTP_L1, resultTP_L1, resultLFL_L1, resultSaleRev_L1))
-                createCels("#FFC6AA", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", num_P1.ToString, resultProduct_P1.ToString, resultGross_P1.ToString, resultAdjGross_P1.ToString, resultOPEX_P1, resultPerTP_P1, resultTP_P1, resultLFL_P1, resultSaleRev_P1))
-                createCels("#FFC6AA", True, e, String.Format("{0}|<div style='text-align:left'>Summary - All Stores</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
-                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{8}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFC6AA", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", (num_L1 + num_P1).ToString, resultProduct1.ToString, resultGross_Total1, resultAdjGross_Total1, resultOPEX_Total1, resultPerTP_Total1, resultTP_Total1, resultLFL_Total1, resultSaleRev_Total1))
+                createCels("#FFC6AA", False, e, String.Format("{0}|<div style='text-align:left'>Loss Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_L1.ToString, resultProduct_L1.ToString, resultGross_L1.ToString, resultAdjGross_L1.ToString, resultOPEX_L1, resultPerTP_L1, resultTP_L1, resultLFL_L1, resultSaleRev_L1))
+                createCels("#FFC6AA", False, e, String.Format("{0}|<div style='text-align:left'>Profit Maker</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_P1.ToString, resultProduct_P1.ToString, resultGross_P1.ToString, resultAdjGross_P1.ToString, resultOPEX_P1, resultPerTP_P1, resultTP_P1, resultLFL_P1, resultSaleRev_P1))
+                createCels("#FFC6AA", True, e, String.Format("{0}|<div style='text-align:left'>Summary - All Stores</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>&nbsp;</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", "", "", "", "", "", "", "", "", ""))
+                createCels("#FFFFFF", True, e, String.Format("{0}|<div style='text-align:left'>Total</div>||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", (num_L1 + num_P1).ToString, resultProduct1.ToString, resultGross_Total1, resultAdjGross_Total1, resultOPEX_Total1, resultPerTP_Total1, resultTP_Total1, resultLFL_Total1, resultSaleRev_Total1))
 
                 'For Export Excel ถ้าไม่เก็บค่าไว้ตรงนี้ จะไม่มีส่วนของ summary
                 Dim sw As New IO.StringWriter()
@@ -499,7 +503,7 @@ Partial Class report_performance
     Protected Sub linkExcel_Click(sender As Object, e As System.EventArgs) Handles linkExcel.Click
         Try
             If ViewState("htmlExcel") IsNot Nothing AndAlso ViewState("htmlExcel").ToString <> "" Then
-                clsPfm.ExportToExcel(ViewState("htmlExcel").ToString)
+                clsPfm.ExportToExcel(ViewState("excelHead").ToString + ViewState("htmlExcel").ToString)
             End If
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message, , , "err")

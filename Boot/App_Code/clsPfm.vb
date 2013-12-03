@@ -56,7 +56,8 @@ Public Class clsPfm
             beginNewStoreDate = bDate
         End If
         Dim sql As String = "" & _
-"SELECT   mtd.TotalRevenue,0.0 as lastRevenue, " & _
+"SELECT   mtd.TotalRevenue, " & _
+"                     case when lfl.TotalRevenue is null then  0 else lfl.TotalRevenue END AS lastRevenue, " & _
 "					  costcenter.costcenter_code , " & _
 "					  costcenter.costcenter_name , " & _
 "					  store.store_name, " & _
@@ -110,67 +111,69 @@ Public Class clsPfm
 
         Try
             da.Fill(dt)
-            If dt.Rows.Count > 0 Then
-                Dim costcenter_code As String = ""
-                Dim colCostcenter_code As String = "costcenter_code"
-                Dim colRev1 As String = "rev1"
-                Dim colRev2 As String = "rev2"
-
-                Dim dtLFL As New DataTable
-                Dim dtTemp As New DataTable : dtTemp = Nothing
-                Dim tempDate As DateTime = bDate
-
-                While (tempDate <= eDate)
-                    dtLFL = getLFLGrowthPfmByMonth(tempDate.Year, tempDate.Month)
-                    If dtTemp Is Nothing Then
-                        dtTemp = dtLFL
-                    Else
-                        dtTemp.Merge(dtLFL)
-                    End If
-                    tempDate = tempDate.AddMonths(1)
-                End While
-
-                dtLFL = Nothing
-                dtLFL = dtTemp.Clone
-                Dim iRow As Integer = -1
-                For Each drTemp As DataRow In dtTemp.Rows
-                    costcenter_code = drTemp(colCostcenter_code).ToString
-                    If dtLFL.Select("costcenter_code = " + costcenter_code + " ").Length = 0 Then
-                        dtLFL.ImportRow(drTemp)
-                    Else
-                        'Find duplicate rows for summary
-                        For i = 0 To dtLFL.Rows.Count - 1
-                            If costcenter_code = dtLFL.Rows(i)(colCostcenter_code) Then
-                                iRow = i
-                                Exit For
-                            End If
-                        Next
-                        dtLFL.Rows(iRow)(colRev1) += drTemp(colRev1)
-                        dtLFL.Rows(iRow)(colRev2) += drTemp(colRev2)
-                    End If
-                Next
-
-                Dim rev1 As Double = 0
-                Dim rev2 As Double = 0
-                If dtLFL.Rows.Count > 0 Then
-                    For Each dr As DataRow In dt.Rows
-                        If dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'").Length > 0 Then
-                            dr("lastRevenue") = dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'")(0)("rev2")
-                            dr("TotalRevenue") = dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'")(0)("rev1")
-                            If dr("lastRevenue") = 0 Or dr("lastRevenue") - 1 = 0 Then
-                                dr("% LFL") = "N/A"
-                                dr("lastRevenue") = 0
-                            Else
-                                dr("% LFL") = ClsManage.convert2PercenLFLGrowth((dr("TotalRevenue") / dr("lastRevenue") - 1))
-                            End If
-                        Else
-                            dr("% LFL") = "N/A"
-                            dr("lastRevenue") = 0
-                        End If
-                    Next
-                End If
-            End If
             Return dt
+            'If dt.Rows.Count > 0 Then
+            '    Dim costcenter_code As String = ""
+            '    Dim colCostcenter_code As String = "costcenter_code"
+            '    Dim colRev1 As String = "rev1"
+            '    Dim colRev2 As String = "rev2"
+
+            '    Dim dtLFL As New DataTable
+            '    Dim dtTemp As New DataTable : dtTemp = Nothing
+            '    Dim tempDate As DateTime = bDate
+
+            '    While (tempDate <= eDate)
+            '        dtLFL = getLFLGrowthPfmByMonth(tempDate.Year, tempDate.Month, rate)
+            '        If dtTemp Is Nothing Then
+            '            dtTemp = dtLFL
+            '        Else
+            '            dtTemp.Merge(dtLFL)
+            '        End If
+            '        tempDate = tempDate.AddMonths(1)
+            '    End While
+
+            '    dtLFL = Nothing
+            '    dtLFL = dtTemp.Clone
+            '    Dim iRow As Integer = -1
+            '    For Each drTemp As DataRow In dtTemp.Rows
+            '        costcenter_code = drTemp(colCostcenter_code).ToString
+            '        If dtLFL.Select("costcenter_code = " + costcenter_code + " ").Length = 0 Then
+            '            dtLFL.ImportRow(drTemp)
+            '        Else
+            '            'Find duplicate rows for summary
+            '            For i = 0 To dtLFL.Rows.Count - 1
+            '                If costcenter_code = dtLFL.Rows(i)(colCostcenter_code) Then
+            '                    iRow = i
+            '                    Exit For
+            '                End If
+            '            Next
+            '            dtLFL.Rows(iRow)(colRev1) += drTemp(colRev1)
+            '            dtLFL.Rows(iRow)(colRev2) += drTemp(colRev2)
+            '        End If
+            '    Next
+
+            '    Dim rev1 As Double = 0
+            '    Dim rev2 As Double = 0
+            '    If dtLFL.Rows.Count > 0 Then
+            '        For Each dr As DataRow In dt.Rows
+            '            If dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'").Length > 0 Then
+            '                dr("lastRevenue") = dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'")(0)("rev2")
+            '                'dr("TotalRevenue") = dtLFL.Select("costcenter_code = '" + dr("costcenter_code").ToString + "'")(0)("rev1")
+
+            '                If dr("lastRevenue") = 0 Or dr("lastRevenue") - 1 = 0 Then
+            '                    dr("% LFL") = "N/A"
+            '                    dr("lastRevenue") = 0
+            '                Else
+            '                    dr("% LFL") = ClsManage.convert2PercenLFLGrowth((dr("TotalRevenue") / dr("lastRevenue") - 1))
+            '                End If
+            '            Else
+            '                dr("% LFL") = "N/A"
+            '                dr("lastRevenue") = 0
+            '            End If
+            '        Next
+            '    End If
+            'End If
+            'Return dt
         Catch ex As Exception
             Throw ex
         Finally
@@ -189,7 +192,7 @@ Public Class clsPfm
         End Try
     End Function
 
-    Public Shared Function getLFLGrowthPfmByMonth(ByVal years As String, ByVal mon As String) As DataTable
+    Public Shared Function getLFLGrowthPfmByMonth(ByVal years As String, ByVal mon As String, rate As String) As DataTable
         'store_id = format
         If years Is Nothing Then Return Nothing
         Dim lastyear As String = years - 1
@@ -199,11 +202,12 @@ Public Class clsPfm
         Dim sqlCondition2 As String = ""
         Dim sqlPtype As String = ""
         Dim locate As String = ""
+        Dim sqlTbl As String = IIf(rate = "", "mtd", "v_mtd('" + rate + "') ")
 
         sqlCol = "select SUM(TotalRevenue) as SumRevenue, cb.costcenter_code, "
         sqlPtype = "ptype = cast( year(@thisyear) as varchar) "
         sqlCondition1 = "" & _
-"from ( select mt1.* from mtd mt1 " & _
+"from ( select mt1.* from " + sqlTbl + " mt1 " & _
 "LEFT JOIN costcenter ct ON (mt1.costcenter_id=ct.costcenter_id) " & _
 "where mt1.month_time = @thisyear and " & _
 "mt1.TotalRevenue <> '0' and ct.costcenter_opendt <=  @lastyear2 and " & _
@@ -224,7 +228,7 @@ Public Class clsPfm
 " AND (cb.costcenter_location = @locate OR @locate = '' )"
         sqlCondition2 = "GROUP BY cb.costcenter_code )g1 inner join( " + sqlCol + _
             "ptype = cast( year(@lastyear) as varchar)  " & _
-            "from mtd dd,costcenter cb,store sto where dd.costcenter_id = cb.costcenter_id and dd.month_time = @lastyear and cb.costcenter_store = sto.store_id and sto.store_other = 'N' " & _
+            "from " + sqlTbl + " dd,costcenter cb,store sto where dd.costcenter_id = cb.costcenter_id and dd.month_time = @lastyear and cb.costcenter_store = sto.store_id and sto.store_other = 'N' " & _
             "and dd.costcenter_id in(SELECT dd.costcenter_id " + sqlCondition1 + ") group by cb.costcenter_code )g2 on g1.costcenter_code = g2.costcenter_code"
 
         sql = "select g1.SumRevenue as Rev1 ,g2.SumRevenue as Rev2, g1.costcenter_code from (" + sqlCol + sqlPtype + sqlCondition1 + sqlCondition2
