@@ -97,6 +97,8 @@ Public Class clsAreas
         Dim da As New SqlDataAdapter(cmd)
         Try
             da.Fill(dt)
+
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'for loop  set % Growth
@@ -123,7 +125,7 @@ Public Class clsAreas
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, beginDate, endDate)
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "") / monthDiff
@@ -138,37 +140,36 @@ Public Class clsAreas
                 drTotal("costcenter_store") = 0
                 drTotal("store_name") = clsBts.reportPart.Total.ToString
                 dt.Rows.Add(drTotal)
+
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                dt.Rows(dt.Rows.Count - 1).Delete()
+                dt.AcceptChanges()
+
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = clsBts.reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = getYoyTotalAreaByStore(beginDate, endDate, dt, rate).Rows(2) ' ต้องแก้ให้เป็นอันเดียวกันกับ query หลัก
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = clsBts.reportPart.Total.ToString
+
             End If
-
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
-            dt.Rows(dt.Rows.Count - 1).Delete()
-            dt.AcceptChanges()
-
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = clsBts.reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = getYoyTotalAreaByStore(beginDate, endDate, dt, rate).Rows(2) ' ต้องแก้ให้เป็นอันเดียวกันกับ query หลัก
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = clsBts.reportPart.Total.ToString
-
             Return ds
         Catch ex As Exception
             Throw ex
@@ -201,14 +202,14 @@ Public Class clsAreas
             "	from mtd m INNER JOIN costcenter c on m.costcenter_id = c.costcenter_id   " & _
             "	where month_time between dateadd(day,1-day(costcenter_opendt), costcenter_opendt) and @eDate  " & _
             "	and month_time between @bDate and @eDate  " & _
-            "	and costcenter_blockdt is null and  costcenter_code in ({0})", costcenter_code)
+            "	and costcenter_blockdt is null and  costcenter_code in ('{0}')", costcenter_code)
 
         Dim sql2 As String = String.Format(" select " + clsBts.columnModelSum & _
             "," + (years - 1).ToString + " as years " & _
             "	from mtd m INNER JOIN costcenter c on m.costcenter_id = c.costcenter_id   " & _
             "	where month_time between dateadd(day,1-day(costcenter_opendt), costcenter_opendt) and dateadd(year,-1,@eDate)  " & _
             "	and month_time between dateadd(year,-1,@bDate) and dateadd(year,-1,@eDate)  " & _
-            "	and costcenter_blockdt is null and  costcenter_code in ({0})", costcenter_code)
+            "	and costcenter_blockdt is null and  costcenter_code in ('{0}')", costcenter_code)
 
 
         sql = "select * from (" + sql1 + " UNION " + sql2 + ") yoy order by years DESC"

@@ -56,6 +56,8 @@
                 <strong>LFL Report</strong></div>
             <div style="padding: 0px 0px 10px 10px;">
                 <div style="padding-top: 5px;">
+                    - <a href="report_LFL.aspx">New MTD LFL Report</a></div>
+                <div style="padding-top: 5px;">
                     - <a href="lfl_mtd_report.aspx">MTD LFL Report</a></div>
                 <div style="padding-top: 5px;">
                     - <a href="lfl_ytd_report.aspx">YTD LFL Report</a></div>
@@ -68,7 +70,7 @@
                 <strong>Performance Report</strong></div>
             <div style="padding: 0px 0px 10px 10px;">
                 <div style="padding-top: 5px;">
-                    - <a href="report_performance.aspx">Performance Report</a></div>
+                    - <a href="report_perform.aspx">Performance Report</a></div>
                 <div style="padding-top: 5px;">
                     - <a href="report_performance_full.aspx">Full Year Store Performance Report</a></div>
             </div>

@@ -75,7 +75,7 @@ Partial Class uc_ucStore
 
     Public Sub LoadReport(ds As Data.DataSet)
         Try
-            If ds.Tables(clsBts.reportPart.Item.ToString).Rows.Count = 0 Then
+            If ds.Tables.Count = 0 OrElse ds.Tables(clsBts.reportPart.Item.ToString).Rows.Count = 0 Then
                 pnMain.Visible = False
                 pnNothing.Visible = True
                 lblNodata.Text = "<div style='color:red;text-align:center;border:solid 1px silver;'>No Data</div>"
@@ -105,7 +105,7 @@ Partial Class uc_ucStore
 
 
                 ClsManage.Script(Page, "settb('b');settb('e');settb('f');settb('g');settb('h');settb('s');settb('aa');")
-                End If
+            End If
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)
         End Try

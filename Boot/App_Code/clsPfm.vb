@@ -58,7 +58,7 @@ Public Class clsPfm
         Dim sql As String = "" & _
 "SELECT   mtd.TotalRevenue, " & _
 "                     case when lfl.TotalRevenue is null then  0 else lfl.TotalRevenue END AS lastRevenue, " & _
-"					  costcenter.costcenter_code , " & _
+"					  costcenter.costcenter_code ,location.location_name, " & _
 "					  costcenter.costcenter_name , " & _
 "					  store.store_name, " & _
 "                     mtd.saleRevenue," & _
@@ -80,6 +80,7 @@ Public Class clsPfm
 "			 )   mtd RIGHT JOIN " & _
 "                      costcenter ON mtd.costcenter_id = costcenter.costcenter_id INNER JOIN " & _
 "                      store ON costcenter.costcenter_store = store.store_id and store.store_other = 'N'  " & _
+"                      LEFT JOIN location ON costcenter.costcenter_location = location.location_id " & _
 "                      LEFT JOIN " & _
 "                      ( " & _
 "						SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(RETAIL_TESPIncome) as saleRevenue,SUM(GrossProfit) AS GrossProfit,SUM(AdjustedGrossMargin) AS AdjustedGrossMargin," & _
@@ -843,7 +844,7 @@ Public Class clsPfm
   "		from mtd m INNER JOIN costcenter c on m.costcenter_id = c.costcenter_id" & _
   "		where month_time >= @bDate and costcenter_blockdt is null and costcenter_opendt between @bDate and @eDate " & _
   "	)sumYear	" & _
-  "	where rankyear <> 0" & _
+  "	where rankyear <> '0' " & _
   "	group by rankyear,costcenter_code,beginDate,endDate " & _
   ")p " & _
   "inner join costcenter c on p.costcenter_code = c.costcenter_code " & _
@@ -998,8 +999,7 @@ Public Class clsPfm
 
         'Change ' to "
         data_temp = data_temp.Replace("class=""GridviewScrollC1Header""", "style='color: #FFFFFF;background: #376091' ")
-        data_temp = data_temp.Replace("<table", "<style> TD { mso-number-format:\@; } </style> <table ")
-
+        'data_temp = data_temp.Replace("<table", "<style> TD { mso-number-format:\@; } </style> <table ")
         HttpContext.Current.Response.Output.Write(data_temp)
         HttpContext.Current.Response.Flush()
         HttpContext.Current.Response.End()

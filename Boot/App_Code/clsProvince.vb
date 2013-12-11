@@ -90,6 +90,7 @@ Public Class clsProvince
 
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'for loop  set % Growth
@@ -113,7 +114,7 @@ Public Class clsProvince
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, beginDate, endDate)
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = (dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")) / monthDiff
@@ -136,37 +137,35 @@ Public Class clsProvince
                 drTotal("month_time") = totalDate
                 dt.Rows.Add(drTotal)
 
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                'แยก row ที่เป็น total ออกไปอีก table
+                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                dt.Rows(dt.Rows.Count - 1).Delete()
+                dt.AcceptChanges()
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = clsBts.reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                'drTotalYoy = clsBts.getYoyYtdTotal(years, mon, "", rate).Rows(2)
+                drTotalYoy = clsBts.getYoyTotalByProvinceId(start_time, end_time, province_id, rate).Rows(2) ' ต้องแก้ให้เป็นอันเดียวกันกับ query หลัก
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = clsBts.reportPart.Total.ToString
+                dt.Dispose() : dtTotal.Dispose()
             End If
-
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            'แยก row ที่เป็น total ออกไปอีก table
-            dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
-            dt.Rows(dt.Rows.Count - 1).Delete()
-            dt.AcceptChanges()
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = clsBts.reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            'drTotalYoy = clsBts.getYoyYtdTotal(years, mon, "", rate).Rows(2)
-            drTotalYoy = clsBts.getYoyTotalByProvinceId(start_time, end_time, province_id, rate).Rows(2) ' ต้องแก้ให้เป็นอันเดียวกันกับ query หลัก
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = clsBts.reportPart.Total.ToString
-            dt.Dispose() : dtTotal.Dispose()
             Return ds
         Catch ex As Exception
             Throw ex

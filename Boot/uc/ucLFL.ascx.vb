@@ -1,6 +1,5 @@
 ﻿
-
-Partial Class uc_ucAreaStore
+Partial Class uc_ucLFL
     Inherits System.Web.UI.UserControl
 
     Private _iMonth As String
@@ -157,16 +156,27 @@ Partial Class uc_ucAreaStore
     End Sub
 
     Protected Sub dlItem_ItemDataBound(sender As Object, e As System.Web.UI.WebControls.DataListItemEventArgs) Handles dlItem.ItemDataBound
-       
+        'Dim reportYear As String = ""
+        'Dim reportYtd As String = IIf(Model = "YTD", Model, "") 'ถ้าเป็น ytd ให้โชว์
+        ''Dim iYear As Integer = Integer.Parse(iYear)
+        'If Integer.Parse(iMonth) < 4 Then
+        '    reportYear = reportYtd + MonthName(iMonth, True).ToString + " " + Convert.ToString(iYear - 1).Substring(2, 2) + iYear.ToString.Substring(2, 2)
+        'Else
+        '    reportYear = reportYtd + MonthName(iMonth, True).ToString + " " + iYear.ToString.Substring(2, 2) + (iYear + 1).ToString.Substring(2, 2)
+        'End If
         Dim drv As Data.DataRowView = e.Item.DataItem
-        Dim tooltip As String = String.Format("<span title='{1}'>{0}</span>", e.Item.DataItem("store_name"), e.Item.DataItem("costcenter_name"))
+        Dim tooltip As String = "<span title='{1}'>{0}</span>"
         Dim l As String = "|"
 
         'Head
         Dim sbHeadItem As New StringBuilder
-        ReportTopic = e.Item.DataItem("area_name")
         sbHeadItem.Append(ReportTopic) '0
-        sbHeadItem.Append(l + tooltip)
+
+        If ReportType = clsBts.reportType.ByFormat.ToString Then
+            sbHeadItem.Append(l + String.Format(tooltip, e.Item.DataItem("store_id"), e.Item.DataItem("store_name")))
+        Else
+            sbHeadItem.Append(l + e.Item.DataItem("store_name"))
+        End If '1
         'sbHeadItem.Append(l + "=""" + e.Item.DataItem("store_name").ToString.Replace("</br>", " "" & char(10) & "" ") + """")
         sbHeadItem.Append(l + e.Item.DataItem("cnum").ToString) '2
         sbHeadItem.Append(l + ClsManage.convert2Currency3(e.Item.DataItem("sumtotalarea").ToString)) '3
@@ -175,40 +185,40 @@ Partial Class uc_ucAreaStore
         sbHeadItem.Append(l + e.Item.DataItem("yoy_growth").ToString) '6
         sbHeadItem.Append(l + e.Item.DataItem("lfl_growth").ToString) '7
 
-            Dim tblClass As Boolean = False
-            If e.Item.DataItem("store_name").ToString.Contains("Total") Then
-                tblClass = True
-            End If
-            Dim htmlHead As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.head, tblClass), sbHeadItem.ToString.Split(l))
+        Dim tblClass As Boolean = False
+        If e.Item.DataItem("store_name").ToString.Contains("Total") Then
+            tblClass = True
+        End If
+        Dim htmlHead As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.head, tblClass), sbHeadItem.ToString.Split(l))
 
-            'Body
-            hdfIndex.Value = Integer.Parse(hdfIndex.Value) + 1
-            Dim sbBodyItem As New StringBuilder
-            Dim sumTotalRevenue As Double = 0
-            Dim valSumItem As Double = 0
-            sumTotalRevenue = e.Item.DataItem("SumTotalRevenue")
-            sbBodyItem.Append(hdfIndex.Value + l + hdfIndex.Value + l + hdfIndex.Value)
-            For i As Integer = 0 To drv.Row.ItemArray.Count - 1
-                If drv.DataView.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    If Not (drv.DataView.Table.Columns(i).ColumnName = "Sumtotalarea" Or drv.DataView.Table.Columns(i).ColumnName = "Sumsalearea") Then
-                        valSumItem = drv.Row.ItemArray(i)
+        'Body
+        hdfIndex.Value = Integer.Parse(hdfIndex.Value) + 1
+        Dim sbBodyItem As New StringBuilder
+        Dim sumTotalRevenue As Double = 0
+        Dim valSumItem As Double = 0
+        sumTotalRevenue = e.Item.DataItem("SumTotalRevenue")
+        sbBodyItem.Append(hdfIndex.Value + l + hdfIndex.Value + l + hdfIndex.Value)
+        For i As Integer = 0 To drv.Row.ItemArray.Count - 1
+            If drv.DataView.Table.Columns(i).ColumnName.Contains("Sum") Then
+                If Not (drv.DataView.Table.Columns(i).ColumnName = "Sumtotalarea" Or drv.DataView.Table.Columns(i).ColumnName = "Sumsalearea") Then
+                    valSumItem = drv.Row.ItemArray(i)
 
-                        sbBodyItem.Append(l + ClsManage.convert2Currency3(valSumItem.ToString) + _
-                                         l + IIf(sumTotalRevenue = 0, "0.0", ClsManage.convert2Currency4((valSumItem / sumTotalRevenue) * 100).ToString) + _
-                                         l + "" _
-                                         )
-                    End If
+                    sbBodyItem.Append(l + ClsManage.convert2Currency3(valSumItem.ToString) + _
+                                     l + IIf(sumTotalRevenue = 0, "0.0", ClsManage.convert2Currency4((valSumItem / sumTotalRevenue) * 100).ToString) + _
+                                     l + "" _
+                                     )
                 End If
-            Next
-            Dim htmlBody As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.body), sbBodyItem.ToString.Split(l))
+            End If
+        Next
+        Dim htmlBody As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.body), sbBodyItem.ToString.Split(l))
 
-            'Foot
-            Dim sbFootItem As New StringBuilder
-            sbFootItem.Append(e.Item.DataItem("yoy_loss_growth").ToString) '0
-            sbFootItem.Append(l + e.Item.DataItem("lfl_loss_growth").ToString) '1
-            Dim htmlFoot As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.foot), sbFootItem.ToString.Split(l))
+        'Foot
+        Dim sbFootItem As New StringBuilder
+        sbFootItem.Append(e.Item.DataItem("yoy_loss_growth").ToString) '0
+        sbFootItem.Append(l + e.Item.DataItem("lfl_loss_growth").ToString) '1
+        Dim htmlFoot As String = String.Format(clsHtml.htmlModelItem(clsHtml.tablePart.foot), sbFootItem.ToString.Split(l))
 
-            CType(e.Item.FindControl("lbl"), Label).Text = htmlHead + htmlBody + htmlFoot
+        CType(e.Item.FindControl("lbl"), Label).Text = htmlHead + htmlBody + htmlFoot
     End Sub
 
     Protected Sub dlTotal_ItemDataBound(sender As Object, e As System.Web.UI.WebControls.DataListItemEventArgs) Handles dlTotal.ItemDataBound
@@ -281,7 +291,6 @@ Partial Class uc_ucAreaStore
             temp_body.RenderControl(htw)
             clsBts.ExportToExcel(sw.ToString, ReportTopic)
 
-           
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message, , , "err")
         End Try

@@ -1071,146 +1071,146 @@ Public Class clsBts
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing), DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing))
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = (dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")) / monthDiff
                 End If
 
-                '3 column ต้องเท่ากันทุก ทุกเดือน
-                drTotal("cnum") = 1 'only 1
-                drTotal("sumsalearea") = dt.Rows(0)("sumsalearea")
-                drTotal("Sumtotalarea") = dt.Rows(0)("Sumtotalarea")
+            '3 column ต้องเท่ากันทุก ทุกเดือน
+            drTotal("cnum") = 1 'only 1
+            drTotal("sumsalearea") = dt.Rows(0)("sumsalearea")
+            drTotal("Sumtotalarea") = dt.Rows(0)("Sumtotalarea")
 
-                drTotal("store_id") = 0
-                drTotal("costcenter_store") = 0
-                drTotal("store_name") = reportPart.Total.ToString
-                drTotal("month_time") = totalDate
-                dt.Rows.Add(drTotal)
+            drTotal("store_id") = 0
+            drTotal("costcenter_store") = 0
+            drTotal("store_name") = reportPart.Total.ToString
+            drTotal("month_time") = totalDate
+            dt.Rows.Add(drTotal)
 
-                'Cal LFL Growth ( Columns --> % Revenue Growth-LFL" in report in Report )
-                'Cal LFL Loss Growth ( Columns --> % Store Trading Profit Growth-LFL in Report )
-                Dim colStoreId As String = "store_id"
-                Dim colRev1 As String = "rev1"
-                Dim colRev2 As String = "rev2"
-                Dim colLoss1 As String = "loss1"
-                Dim colLoss2 As String = "loss2"
+            'Cal LFL Growth ( Columns --> % Revenue Growth-LFL" in report in Report )
+            'Cal LFL Loss Growth ( Columns --> % Store Trading Profit Growth-LFL in Report )
+            Dim colStoreId As String = "store_id"
+            Dim colRev1 As String = "rev1"
+            Dim colRev2 As String = "rev2"
+            Dim colLoss1 As String = "loss1"
+            Dim colLoss2 As String = "loss2"
 
-                Dim dtLFL As New DataTable
-                Dim store_id As String = ""
-                Dim dtTemp As New DataTable : dtTemp = Nothing
+            Dim dtLFL As New DataTable
+            Dim store_id As String = ""
+            Dim dtTemp As New DataTable : dtTemp = Nothing
 
-                Dim endDate As DateTime = DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing)
-                Dim tempDate As DateTime = DateTime.ParseExact(end_time, ClsManage.formatDateTime, Nothing)
+            Dim endDate As DateTime = DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing)
+            Dim tempDate As DateTime = DateTime.ParseExact(end_time, ClsManage.formatDateTime, Nothing)
 
-                While (tempDate >= endDate)
-                    dtLFL = getLFLGrowthByCostCenterId(tempDate.Year, tempDate.Month, cost_id)
+            While (tempDate >= endDate)
+                dtLFL = getLFLGrowthByCostCenterId(tempDate.Year, tempDate.Month, cost_id)
 
-                    If dtTemp Is Nothing Then
-                        dtTemp = dtLFL
+                If dtTemp Is Nothing Then
+                    dtTemp = dtLFL
+                Else
+                    dtTemp.Merge(dtLFL)
+                End If
+                tempDate = tempDate.AddMonths(-1)
+            End While
+
+            dtLFL = dtTemp
+            'summary last row
+            Dim drSum As DataRow = dtLFL.NewRow
+            drSum(colRev1) = IIf(dtLFL.Compute("Sum(" + colRev1 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colRev1 + ")", ""))
+            drSum(colRev2) = IIf(dtLFL.Compute("Sum(" + colRev2 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colRev2 + ")", ""))
+            drSum(colLoss1) = IIf(dtLFL.Compute("Sum(" + colLoss1 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colLoss1 + ")", ""))
+            drSum(colLoss2) = IIf(dtLFL.Compute("Sum(" + colLoss2 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colLoss2 + ")", ""))
+            drSum(colStoreId) = 0  'สมมุติให้เป็น store id = 0
+            drSum("month_time") = totalDate.ToString("M/yyyy")
+            dtLFL.Rows.Add(drSum)
+
+            'Dividing each row
+            Dim rev1 As Double = 0 : Dim rev2 As Double = 0 : Dim loss1 As Double = 0 : Dim loss2 As Double = 0
+            For Each dr As DataRow In dtLFL.Rows
+                rev1 = IIf(IsDBNull(dr(0)), 0, dr(0))
+                rev2 = IIf(IsDBNull(dr(1)), 0, dr(1))
+                loss1 = IIf(IsDBNull(dr(2)), 0, dr(2))
+                loss2 = IIf(IsDBNull(dr(3)), 0, dr(3))
+
+                If rev1 <> 0 And rev2 <> 0 Then
+                    dr(colRev1) = (rev1 / rev2) - 1
+                Else
+                    dr(colRev1) = 0
+                End If
+
+                If loss1 <> 0 And loss2 <> 0 Then
+                    dr(colLoss1) = (loss1 / loss2) - 1
+                Else
+                    dr(colLoss1) = 0
+                End If
+            Next
+
+            'change condition from store_id to month_time 
+            store_id = ""
+            If dtLFL.Rows.Count > 0 Then
+                For Each dr As DataRow In dt.Rows
+                    If Not IsDBNull(dr("month_time")) = True Then
+                        store_id = CDate(dr("month_time")).ToString("M/yyyy")
                     Else
-                        dtTemp.Merge(dtLFL)
+                        store_id = ""
                     End If
-                    tempDate = tempDate.AddMonths(-1)
-                End While
 
-                dtLFL = dtTemp
-                'summary last row
-                Dim drSum As DataRow = dtLFL.NewRow
-                drSum(colRev1) = IIf(dtLFL.Compute("Sum(" + colRev1 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colRev1 + ")", ""))
-                drSum(colRev2) = IIf(dtLFL.Compute("Sum(" + colRev2 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colRev2 + ")", ""))
-                drSum(colLoss1) = IIf(dtLFL.Compute("Sum(" + colLoss1 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colLoss1 + ")", ""))
-                drSum(colLoss2) = IIf(dtLFL.Compute("Sum(" + colLoss2 + ")", "").ToString = "", 0, dtLFL.Compute("Sum(" + colLoss2 + ")", ""))
-                drSum(colStoreId) = 0  'สมมุติให้เป็น store id = 0
-                drSum("month_time") = totalDate.ToString("M/yyyy")
-                dtLFL.Rows.Add(drSum)
-
-                'Dividing each row
-                Dim rev1 As Double = 0 : Dim rev2 As Double = 0 : Dim loss1 As Double = 0 : Dim loss2 As Double = 0
-                For Each dr As DataRow In dtLFL.Rows
-                    rev1 = IIf(IsDBNull(dr(0)), 0, dr(0))
-                    rev2 = IIf(IsDBNull(dr(1)), 0, dr(1))
-                    loss1 = IIf(IsDBNull(dr(2)), 0, dr(2))
-                    loss2 = IIf(IsDBNull(dr(3)), 0, dr(3))
-
-                    If rev1 <> 0 And rev2 <> 0 Then
-                        dr(colRev1) = (rev1 / rev2) - 1
+                    If dtLFL.Select("month_time = '" + store_id + "' ").Length > 0 Then
+                        dr("lfl_growth") = ClsManage.convert2PercenLFLGrowth(dtLFL.Select("month_time = '" + store_id + "' ")(0)(colRev1))
+                        dr("lfl_loss_growth") = ClsManage.convert2PercenLFLGrowth(dtLFL.Select("month_time = '" + store_id + "' ")(0)(colLoss1))
                     Else
-                        dr(colRev1) = 0
-                    End If
+                        If dr("store_name") = clsBts.reportPart.Total.ToString Then
+                            dr("lfl_growth") = ClsManage.convert2PercenLFLGrowth(0)
+                            dr("lfl_loss_growth") = ClsManage.convert2PercenLFLGrowth(0)
+                        End If
 
-                    If loss1 <> 0 And loss2 <> 0 Then
-                        dr(colLoss1) = (loss1 / loss2) - 1
-                    Else
-                        dr(colLoss1) = 0
                     End If
                 Next
+            Else
 
-                'change condition from store_id to month_time 
-                store_id = ""
-                If dtLFL.Rows.Count > 0 Then
-                    For Each dr As DataRow In dt.Rows
-                        If Not IsDBNull(dr("month_time")) = True Then
-                            store_id = CDate(dr("month_time")).ToString("M/yyyy")
-                        Else
-                            store_id = ""
-                        End If
+            End If
 
-                        If dtLFL.Select("month_time = '" + store_id + "' ").Length > 0 Then
-                            dr("lfl_growth") = ClsManage.convert2PercenLFLGrowth(dtLFL.Select("month_time = '" + store_id + "' ")(0)(colRev1))
-                            dr("lfl_loss_growth") = ClsManage.convert2PercenLFLGrowth(dtLFL.Select("month_time = '" + store_id + "' ")(0)(colLoss1))
-                        Else
-                            If dr("store_name") = clsBts.reportPart.Total.ToString Then
-                                dr("lfl_growth") = ClsManage.convert2PercenLFLGrowth(0)
-                                dr("lfl_loss_growth") = ClsManage.convert2PercenLFLGrowth(0)
-                            End If
+            'Cal YOY Growth ( Columns --> % Revenue Growth-YOY" in report in Report )
+            'Cal YOY Loss Growth ( Columns --> % Store Trading Profit Growth-YOY in Report )
+            Dim dtPreYtd As New DataTable
+            dtPreYtd = getYoyByCostCenterId(start_time, end_time, cost_id, rate)
 
-                        End If
-                    Next
-                Else
+            rev1 = 0 : rev2 = 0 : loss1 = 0 : loss2 = 0
+            Dim costcenterStore As String = ""
+            If dtPreYtd.Rows.Count > 0 Then
+                For Each dr As DataRow In dt.Rows
 
-                End If
+                    If Not IsDBNull(dr("month_time")) = True Then
+                        costcenterStore = CDate(dr("month_time")).AddYears(-1).ToString("M/yyyy") 'Addyear for compare
+                    Else
+                        costcenterStore = ""
+                    End If
 
-                'Cal YOY Growth ( Columns --> % Revenue Growth-YOY" in report in Report )
-                'Cal YOY Loss Growth ( Columns --> % Store Trading Profit Growth-YOY in Report )
-                Dim dtPreYtd As New DataTable
-                dtPreYtd = getYoyByCostCenterId(start_time, end_time, cost_id, rate)
+                    If dtPreYtd.Select("month_time = '" + costcenterStore + "' ").Length > 0 Then
+                        rev1 = IIf(IsDBNull(dr("SumTotalRevenue")), 0, dr("SumTotalRevenue"))
+                        rev2 = IIf(IsDBNull(dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumTotalRevenue")), 0, dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumTotalRevenue"))
 
-                rev1 = 0 : rev2 = 0 : loss1 = 0 : loss2 = 0
-                Dim costcenterStore As String = ""
-                If dtPreYtd.Rows.Count > 0 Then
-                    For Each dr As DataRow In dt.Rows
+                        loss1 = IIf(IsDBNull(dr("SumStoreTradingProfit__Loss")), 0, dr("SumStoreTradingProfit__Loss"))
+                        loss2 = IIf(IsDBNull(dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumLoss")), 0, dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumLoss"))
 
-                        If Not IsDBNull(dr("month_time")) = True Then
-                            costcenterStore = CDate(dr("month_time")).AddYears(-1).ToString("M/yyyy") 'Addyear for compare
-                        Else
-                            costcenterStore = ""
-                        End If
-
-                        If dtPreYtd.Select("month_time = '" + costcenterStore + "' ").Length > 0 Then
-                            rev1 = IIf(IsDBNull(dr("SumTotalRevenue")), 0, dr("SumTotalRevenue"))
-                            rev2 = IIf(IsDBNull(dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumTotalRevenue")), 0, dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumTotalRevenue"))
-
-                            loss1 = IIf(IsDBNull(dr("SumStoreTradingProfit__Loss")), 0, dr("SumStoreTradingProfit__Loss"))
-                            loss2 = IIf(IsDBNull(dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumLoss")), 0, dtPreYtd.Select("month_time = '" + costcenterStore + "' ")(0)("SumLoss"))
-
-                            If rev1 <> 0 And rev2 <> 0 Then
-                                dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth((rev1 / rev2) - 1)
-                            Else
-                                dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth(0)
-                            End If
-
-                            If loss1 <> 0 And loss2 <> 0 Then
-                                dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth((loss1 / loss2) - 1)
-                            Else
-                                dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth(0)
-                            End If
+                        If rev1 <> 0 And rev2 <> 0 Then
+                            dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth((rev1 / rev2) - 1)
                         Else
                             dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth(0)
+                        End If
+
+                        If loss1 <> 0 And loss2 <> 0 Then
+                            dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth((loss1 / loss2) - 1)
+                        Else
                             dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth(0)
                         End If
-                    Next
-                End If
+                    Else
+                        dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth(0)
+                        dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth(0)
+                    End If
+                Next
+            End If
             End If
 
             Dim ds As New DataSet
@@ -1426,7 +1426,7 @@ Public Class clsBts
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing), DateTime.ParseExact(end_time, ClsManage.formatDateTime, Nothing))
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = (dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")) / monthDiff
@@ -1841,6 +1841,7 @@ Public Class clsBts
         Dim da As New SqlDataAdapter(cmd)
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'Add row for total 
@@ -1925,36 +1926,35 @@ Public Class clsBts
 
                     Next
                 End If
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                dt.Rows(dt.Rows.Count - 1).Delete()
+                dt.AcceptChanges()
+
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyMtdTotal(years, mon, locate, rate).Rows(2)
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = reportPart.Total.ToString
+
             End If
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
-            dt.Rows(dt.Rows.Count - 1).Delete()
-            dt.AcceptChanges()
-
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = clsBts.getYoyMtdTotal(years, mon, locate, rate).Rows(2)
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = reportPart.Total.ToString
-
             Return ds
         Catch ex As Exception
             Throw ex
@@ -2157,6 +2157,7 @@ Public Class clsBts
 
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'Add row for total 
@@ -2172,7 +2173,7 @@ Public Class clsBts
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing), DateTime.ParseExact(("1/" + mon + "/" + years), ClsManage.formatDateTime, Nothing))
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = (dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")) / monthDiff
@@ -2315,41 +2316,40 @@ Public Class clsBts
                         End If
                     Next
                 End If
+
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                'แยก row ที่เป็น total ออกไปอีก table
+                For i As Integer = 0 To dt.Rows.Count - 1
+                    If dt.Rows(i)("costcenter_store") = 0 Then
+                        dtTotal.ImportRow(dt.Rows(i))
+                        dt.Rows(i).Delete()
+                    End If
+                Next
+                dt.AcceptChanges()
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyYtdTotal(years, mon, locate, rate).Rows(2)
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = reportPart.Total.ToString
+                dt.Dispose() : dtTotal.Dispose()
             End If
-
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            'แยก row ที่เป็น total ออกไปอีก table
-            For i As Integer = 0 To dt.Rows.Count - 1
-                If dt.Rows(i)("costcenter_store") = 0 Then
-                    dtTotal.ImportRow(dt.Rows(i))
-                    dt.Rows(i).Delete()
-                End If
-            Next
-            dt.AcceptChanges()
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = clsBts.getYoyYtdTotal(years, mon, locate, rate).Rows(2)
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = reportPart.Total.ToString
-            dt.Dispose() : dtTotal.Dispose()
             Return ds
         Catch ex As Exception
             Throw ex
@@ -2401,6 +2401,7 @@ Public Class clsBts
         Dim da As New SqlDataAdapter(cmd)
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'Add row for total 
@@ -2484,36 +2485,36 @@ Public Class clsBts
 
                     Next
                 End If
+
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                dt.Rows(dt.Rows.Count - 1).Delete()
+                dt.AcceptChanges()
+
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyMtdTotal(years, mon, locate, rate).Rows(2)
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = reportPart.Total.ToString
+
             End If
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
-            dt.Rows(dt.Rows.Count - 1).Delete()
-            dt.AcceptChanges()
-
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = clsBts.getYoyMtdTotal(years, mon, locate, rate).Rows(2)
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = reportPart.Total.ToString
-
             Return ds
         Catch ex As Exception
             Throw ex
@@ -2603,6 +2604,7 @@ Public Class clsBts
 
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'Add row for total 
@@ -2618,7 +2620,7 @@ Public Class clsBts
                 Next
 
                 Dim monthDiff As Integer = 1 + DateDiff(DateInterval.Month, DateTime.ParseExact(start_time, ClsManage.formatDateTime, Nothing), DateTime.ParseExact(("1/" + mon + "/" + years), ClsManage.formatDateTime, Nothing))
-                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" OrElse dt.Compute("Sum(sumsalearea)", "") = 0 Then
                     drTotal("productivity") = 0
                 Else
                     drTotal("productivity") = (dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")) / monthDiff
@@ -2803,41 +2805,40 @@ Public Class clsBts
                         End If
                     Next
                 End If
+
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                'แยก row ที่เป็น total ออกไปอีก table
+                For i As Integer = 0 To dt.Rows.Count - 1
+                    If dt.Rows(i)("costcenter_store") = 0 Then
+                        dtTotal.ImportRow(dt.Rows(i))
+                        dt.Rows(i).Delete()
+                    End If
+                Next
+                dt.AcceptChanges()
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyYtdTotal(years, mon, locate, rate).Rows(2)
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = reportPart.Total.ToString
+                dt.Dispose() : dtTotal.Dispose()
             End If
-
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            'แยก row ที่เป็น total ออกไปอีก table
-            For i As Integer = 0 To dt.Rows.Count - 1
-                If dt.Rows(i)("costcenter_store") = 0 Then
-                    dtTotal.ImportRow(dt.Rows(i))
-                    dt.Rows(i).Delete()
-                End If
-            Next
-            dt.AcceptChanges()
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = clsBts.getYoyYtdTotal(years, mon, locate, rate).Rows(2)
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
-                End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
-
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = reportPart.Total.ToString
-            dt.Dispose() : dtTotal.Dispose()
             Return ds
         Catch ex As Exception
             Throw ex
@@ -2903,6 +2904,7 @@ Public Class clsBts
         Dim da As New SqlDataAdapter(cmd)
         Try
             da.Fill(dt)
+            Dim ds As New DataSet
             If dt.Rows.Count > 0 Then
 
                 'Add row for total 
@@ -3073,40 +3075,36 @@ Public Class clsBts
                         End If
                     Next
                 End If
-            Else
-                'no data
-                'Return Nothing
-            End If
-            Dim ds As New DataSet
-            Dim dtTotal As New DataTable
-            dtTotal = dt.Clone
-            If dt.Rows.Count > 0 Then
-                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
-                dt.Rows(dt.Rows.Count - 1).Delete()
-                dt.AcceptChanges()
-            End If
-            ds.Tables.Add(dt)
-            ds.Tables(0).TableName = reportPart.Item.ToString
-
-            'Add Total YOY
-            Dim drTotalYoy As Data.DataRow
-            drTotalYoy = clsBts.getYoyMtdTotalByFormat(beginDate, endDate, locate, rate, store_id).Rows(2)
-
-            Dim drNewTotalYoy As DataRow = dtTotal.NewRow
-            For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
-                If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
-                    drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                If dt.Rows.Count > 0 Then
+                    dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                    dt.Rows(dt.Rows.Count - 1).Delete()
+                    dt.AcceptChanges()
                 End If
-            Next
-            drNewTotalYoy("cnum") = 0
-            drNewTotalYoy("store_id") = 0
-            drNewTotalYoy("costcenter_store") = 0
-            drNewTotalYoy("store_name") = "TotalYoy"
-            dtTotal.Rows.Add(drNewTotalYoy)
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = reportPart.Item.ToString
 
-            ds.Tables.Add(dtTotal)
-            ds.Tables(1).TableName = reportPart.Total.ToString
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyMtdTotalByFormat(beginDate, endDate, locate, rate, store_id).Rows(2)
 
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = reportPart.Total.ToString
+
+            End If
             Return ds
         Catch ex As Exception
             Throw ex

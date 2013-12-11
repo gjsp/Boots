@@ -632,7 +632,7 @@ Public Class ClsDB
             s_store = " and cc.costcenter_store ='" + store + "' "
         End If
 
-        Dim sql As String = "select * from costcenter cc,store st,location la,province pv,area ar,market mr where cc.costcenter_market = mr.market_id and cc.costcenter_store = st.store_id and cc.costcenter_areas = ar.area_id and cc.costcenter_location = la.location_id and cc.costcenter_province = pv.province_id and cc.costcenter_code LIKE '%'+'" + title + "'+'%' " + s_area + s_location + s_province + s_store + "order by CONVERT(INT, cc.costcenter_code) desc"
+        Dim sql As String = "select * from costcenter cc,store st,location la,province pv,area ar,market mr where cc.costcenter_market = mr.market_id and cc.costcenter_store = st.store_id and cc.costcenter_areas = ar.area_id and cc.costcenter_location = la.location_id and cc.costcenter_province = pv.province_id and cc.costcenter_code LIKE '%'+'" + title + "'+'%' " + s_area + s_location + s_province + s_store + "order by CONVERT(varchar, cc.costcenter_code) desc"
 
         Dim con As New SqlConnection(strcon)
         Dim cmd As New SqlCommand(sql, con)

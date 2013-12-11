@@ -1,10 +1,7 @@
-﻿
-<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false"
-    EnableEventValidation="true" MaintainScrollPositionOnPostback="true" CodeFile="report_performance.aspx.vb"
-    Inherits="report_performance" %>
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false" CodeFile="report_perform.aspx.vb" Inherits="report_perform" EnableEventValidation="true" MaintainScrollPositionOnPostback="true" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
+     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
     <link href="scroll/GridviewScroll.css" rel="stylesheet" type="text/css" />
     <script src="scroll/gridviewScroll.min.js" type="text/javascript"></script>
@@ -40,7 +37,7 @@
                 $get('divEndDate').style.display = 'none';
             }
         }
-             
+
     </script>
     <style type="text/css">
         .GridviewScrollC1Header TH, .GridviewScrollC1Header TD
@@ -78,8 +75,8 @@
         }
     </style>
 </asp:Content>
-<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
-    <div style="padding: 10px 10px;">
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
+      <div style="padding: 10px 10px;">
         <strong>Performance Report</strong> 
        <span style="font-size:11px">
         (Note : All number represents performance at retail store contribution level only, excluding stock loss & obsolete provision at warehouse, supplier income and other central cost allocation which are A&P, head office cost)
@@ -172,7 +169,7 @@
                             <asp:BoundField DataField="costcenter_name" HeaderText="Name" />
                             <asp:BoundField DataField="location_name" HeaderText="Location" />
                             <asp:BoundField DataField="store_name" HeaderText="Store Format" />
-                            <asp:BoundField DataField="Productivity" HeaderText="Productivity/ SQM/MTH" DataFormatString="{0:#,##0.00}">
+                            <asp:BoundField DataField="Productivity" HeaderText="Productivity/ SQM/MTH" DataFormatString="{0:#,##0}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
@@ -180,7 +177,7 @@
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
-                            <asp:BoundField DataField="saleRevenue" HeaderText="Revenue" DataFormatString="{0:#,##0.00}">
+                            <asp:BoundField DataField="saleRevenue" HeaderText="Revenue" DataFormatString="{0:#,##0}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
@@ -200,7 +197,7 @@
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
-                            <asp:BoundField DataField="TradingProfit" HeaderText="Trading Profit" DataFormatString="{0:#,##0.00}">
+                            <asp:BoundField DataField="TradingProfit" HeaderText="Trading Profit" DataFormatString="{0:#,##0}">
                                 <HeaderStyle Width="100px" />
                                 <ItemStyle HorizontalAlign="Right" />
                             </asp:BoundField>
@@ -226,3 +223,4 @@
       
     </div>
 </asp:Content>
+

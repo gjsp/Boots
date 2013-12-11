@@ -293,7 +293,12 @@ Partial Class top_store_report
             LbPercStoreTradingProfit__Loss.Text = ClsManage.convert2Currency((Convert.ToDecimal(LbSumStoreTradingProfit__Loss.Text) / Convert.ToDecimal(LbSumTotalRevenue.Text)) * 100).ToString
 
             'LbFullPos.Text = ClsManage.convert2NoneZero(Convert.ToDecimal(LbSumTotalRevenue.Text), Convert.ToDecimal(LbFullTss.Text)).ToString
-            LbFullPos.Text = ClsManage.convert2Currency((Convert.ToDecimal(LbSumTotalRevenue.Text) / Convert.ToDecimal(LbFullTss.Text)) / Convert.ToDecimal(mdiff)).ToString
+            If Convert.ToDecimal(LbFullTss.Text) = 0 Then
+                LbFullPos.Text = "0"
+            Else
+                LbFullPos.Text = ClsManage.convert2Currency((Convert.ToDecimal(LbSumTotalRevenue.Text) / Convert.ToDecimal(LbFullTss.Text)) / Convert.ToDecimal(mdiff)).ToString
+            End If
+
         End If
 
         ClsManage.Script(Page, "settb('b');settb('e');settb('f');settb('g');settb('h');settb('s');settb('aa');")
