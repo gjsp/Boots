@@ -47,7 +47,7 @@ Public Class clsAreas
             "	from mtd m INNER JOIN costcenter c on m.costcenter_id = c.costcenter_id   " & _
             "	where month_time between costcenter_opendt and dateadd(year,-1,@eDate)  " & _
             "	and month_time between dateadd(year,-1,@bDate) and dateadd(year,-1,@eDate)  " & _
-            "	and costcenter_blockdt is null and costcenter_code not in (" + clsHtml.getTempClose() + ")  " & _
+            "	and costcenter_blockdt is null and costcenter_code not in ('" + clsHtml.getTempClose() + "')  " & _
             "	group by costcenter_code  " & _
             ") lfl on sm.costcenter_code = lfl.costcenter_code  " & _
             "left join    " & _
@@ -56,7 +56,7 @@ Public Class clsAreas
             "	from mtd m INNER JOIN costcenter c on m.costcenter_id = c.costcenter_id   " & _
             "	where month_time between dateadd(day,1-day(costcenter_opendt), costcenter_opendt) and dateadd(year,-1,@eDate)  " & _
             "	and month_time between dateadd(year,-1,@bDate) and dateadd(year,-1,@eDate)  " & _
-            "	and costcenter_blockdt is null and costcenter_code not in (" + clsHtml.getTempClose() + ")  " & _
+            "	and costcenter_blockdt is null and costcenter_code not in ('" + clsHtml.getTempClose() + "')  " & _
             "	group by costcenter_code  " & _
             ") yoy on sm.costcenter_code = yoy.costcenter_code order by costcenter_code "
 

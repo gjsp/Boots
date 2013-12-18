@@ -31,6 +31,30 @@ Public Class clsPfm
         Return str
     End Function
 
+    Public Shared Function getTempCloseLFL() As String 'add year -1
+        Try
+            'อันเก่า
+            'Dim str As String = "" & _
+            '"select distinct tempc_costcenter_id from ( " & _
+            '"select *,CASE WHEN (tempc_start IS null and tempc_finish >= @bDate ) OR (tempc_start IS null and tempc_finish >= @eDate ) THEN 1 " & _
+            '"WHEN (tempc_start <= dateadd(month,1,dateadd(day,-1, @bDate)) and tempc_finish IS null) OR (tempc_start <= dateadd(month,1,dateadd(day,-1, @eDate)) and tempc_finish IS null) THEN 1 " & _
+            '"WHEN (tempc_start <= dateadd(month,1,dateadd(day,-1, @bDate)) and tempc_finish >= @bDate) OR (tempc_start <= dateadd(month,1,dateadd(day,-1, @eDate)) and tempc_finish >= @eDate) " & _
+            '"THEN 1 ELSE 0 END AS status_at from tempc) as tt where status_at = 1"
+
+            'all add year -1
+            Dim str As String = "" & _
+            "select distinct tempc_costcenter_id from ( " & _
+            "select *,CASE WHEN (tempc_start IS null and tempc_finish >= dateadd(year,-1, @bDate) ) OR (tempc_start IS null and tempc_finish >= dateadd(year,-1, @eDate) ) THEN 1 " & _
+            "WHEN (tempc_start <= dateadd(month,1,dateadd(day,-1, dateadd(year,-1, @bDate))) and tempc_finish IS null) OR (tempc_start <= dateadd(month,1,dateadd(day,-1, dateadd(year,-1, @eDate))) and tempc_finish IS null) THEN 1 " & _
+            "WHEN (tempc_start <= dateadd(month,1,dateadd(day,-1, dateadd(year,-1, @bDate))) and tempc_finish >= dateadd(year,-1, @bDate)) OR (tempc_start <= dateadd(month,1,dateadd(day,-1, dateadd(year,-1, @eDate))) and tempc_finish >= dateadd(year,-1, @eDate)) " & _
+            "THEN 1 ELSE 0 END AS status_at from tempc) as tt where status_at = 1"
+
+            Return str
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
     Public Shared Function getPerformance(by As String, bDate As DateTime, eDate As DateTime, rate As String) As DataTable
         '* ดึง costcenter ทั้งหมดมา แยก เป็น 2ชุด 
         '1ชุดที่อยู่ใน วันที่ที่เลือก --> InDate = y
@@ -67,7 +91,7 @@ Public Class clsPfm
 "                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST( CAST((mtd.AdjustedGrossMargin/mtd.TotalRevenue)*100 as DECIMAL(18,1)) as varchar) + '%' END AS [% Adj Gross Profit], " & _
 "                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST(((mtd.SupplyChainCosts + mtd.TotalStoreExpenses) / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% OPEX], " & _
 "                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST((mtd.StoreTradingProfit__Loss / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% Trading Profit/Loss], " & _
-"					  CASE WHEN (lfl.TotalRevenue = 0 or lfl.TotalRevenue is null) THEN 'N/A' ELSE CAST(CAST((mtd.TotalRevenue/lfl.TotalRevenue)-1 AS DECIMAL(18,1)) AS varchar)+ '%' END AS [% LFL], " & _
+"					  CASE WHEN (lfl.TotalRevenue = 0 or lfl.TotalRevenue is null) THEN 'N/A' ELSE cast(-cast(100- ( 100 * cast( mtd.TotalRevenue/lfl.TotalRevenue as decimal(6,3) ) ) as decimal(10,1)) as varchar)+'%' END AS [% LFL], " & _
 "					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
 "                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses as OPEX, " & _
 "					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
@@ -83,16 +107,19 @@ Public Class clsPfm
 "                      LEFT JOIN location ON costcenter.costcenter_location = location.location_id " & _
 "                      LEFT JOIN " & _
 "                      ( " & _
-"						SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(RETAIL_TESPIncome) as saleRevenue,SUM(GrossProfit) AS GrossProfit,SUM(AdjustedGrossMargin) AS AdjustedGrossMargin," & _
-"						SUM(SupplyChainCosts) AS SupplyChainCosts,SUM(StoreTradingProfit__Loss) AS StoreTradingProfit__Loss,SUM(TotalStoreExpenses) as TotalStoreExpenses " & _
-"						FROM " + sqlTbl + " WHERE mtd.month_time BETWEEN DATEADD(year,-1,@bDate)  and DATEADD(year,-1,@eDate)" & _
-"						GROUP BY costcenter_id" & _
+"						SELECT mtd.costcenter_id,SUM(TotalRevenue) AS TotalRevenue " & _
+"						FROM " + sqlTbl + " inner join costcenter c on mtd.costcenter_id = c.costcenter_id " & _
+"                       WHERE mtd.month_time BETWEEN DATEADD(year,-1,@bDate)  and DATEADD(year,-1,@eDate)" & _
+"                       AND costcenter_opendt <= DATEADD(year,-1,@bDate) " & _
+"                       AND c.costcenter_id not in (" + getTempCloseLFL() + ") " & _
+"						GROUP BY mtd.costcenter_id" & _
 "                      )lfl ON lfl.costcenter_id = mtd.costcenter_id" & _
-" WHERE  mtd.TotalRevenue is not null " & _
+" WHERE  mtd.TotalRevenue is not null AND mtd.TotalRevenue <> 0 " & _
 "	   AND costcenter.costcenter_opendt  < DATEADD(month,1,@eDate)" & _
 "	   AND  (costcenter.costcenter_blockdt IS NULL OR costcenter.costcenter_blockdt > DATEADD(day,-1,DATEADD(month,1,@eDate)) )" & _
+"      AND lfl.TotalRevenue is not null " & _
 " ORDER BY InDate,mtd.StoreTradingProfit__Loss DESC"
-        'AND mtd.TotalRevenue <> 0 
+
         Dim dt As New DataTable
         Dim con As New SqlConnection(strcon)
         Dim cmd As New SqlCommand(sql, con)

@@ -37,7 +37,7 @@ Partial Class report_LFL
         Try
             Dim ds As New Data.DataSet
             If ddlBy.SelectedIndex = 0 Then
-                ds = clsBts.getModelMtd(ddlYear.SelectedValue, ddlMonth.SelectedValue, ddllo.SelectedValue, ddlRate.SelectedValue)
+                ds = clsLFL.getSumFullMtdLfl(ddlYear.SelectedValue, ddlMonth.SelectedValue, ddlRate.SelectedValue)
                 ucModel.ReportType = clsBts.reportType.MTD.ToString
             ElseIf ddlBy.SelectedIndex = 1 Then
                 ds = clsBts.getModelYtd(ddlYear.SelectedValue, ddlMonth.SelectedValue, ddllo.SelectedValue, ddlRate.SelectedValue)
@@ -46,7 +46,7 @@ Partial Class report_LFL
             ucModel.ReportName = ucModel.ReportType + " Model Report"
             ucModel.iMonth = ddlMonth.SelectedValue
             ucModel.iYear = ddlYear.SelectedValue
-            ucModel.ItemScrollWidth = 1100
+            ucModel.ItemScrollWidth = 1000
             ucModel.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)
