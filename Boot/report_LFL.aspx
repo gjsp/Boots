@@ -1,8 +1,6 @@
 ﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false" CodeFile="report_LFL.aspx.vb" Inherits="report_LFL" EnableEventValidation="true" %>
 
-
-<%@ Register src="uc/ucReport.ascx" tagname="ucReport" tagprefix="uc1" %>
-
+<%@ Register Src="~/uc/ucLFL.ascx" TagPrefix="uc1" TagName="ucLFL" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
     
@@ -11,7 +9,7 @@
 
 
     <div style="padding: 10px 10px;">
-        <strong>Model Report</strong>
+        <strong>LFL Report</strong>
         <span style="font-size:11px">
         (Note : All number represents performance at retail store contribution level only, excluding stock loss & obsolete provision at warehouse, supplier income and other central cost allocation which are A&P, head office cost)
         </span>
@@ -40,19 +38,11 @@
          
         </div>
          <div style="float:left; margin-right:.5cm">
-         Location : <asp:DropDownList ID="ddllo" runat="server" CssClass="select2">
-        </asp:DropDownList>
-        <asp:TextBox ID="TbCk" runat="server" style="display:none;"></asp:TextBox>
-         </div>
-         <div style="float:left; margin-right:.5cm">
         Currency Rate : <asp:DropDownList ID="ddlRate" runat="server" CssClass="select2">
         </asp:DropDownList>
          </div>
         <asp:Button ID="SearchBt" runat="server" Text="Search" Height="23px"/>
-
-
-        <uc1:ucReport ID="ucModel" runat="server" />
-
+        <uc1:ucLFL runat="server" ID="ucLFL" />
 
     </div>
           

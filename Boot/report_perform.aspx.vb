@@ -90,9 +90,9 @@ Partial Class report_perform
             End If
 
             If e.Row.DataItem("InDate") = "y2" Then
-                e.Row.Attributes.Add("style", "background-color:#FFFF99")
+                e.Row.Attributes.Add("style", "background-color:#FFFF99") 'yellow
             ElseIf e.Row.DataItem("InDate") = "y1" Then
-                e.Row.Attributes.Add("style", "background-color:#B1E4B1")
+                e.Row.Attributes.Add("style", "background-color:#B1E4B1") 'green
             End If
         End If
 
@@ -158,7 +158,7 @@ Partial Class report_perform
                         sumTP_L1 += ClsManage.convert2zero(dr("TradingProfit").ToString)
                         If dr("% LFL").ToString <> "N/A" Then
                             lastRevenue_L1 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                            thisRevenue_L1 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                            thisRevenue_L1 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                         End If
                     Else
                         If dr("store_name").ToString <> clsBts.storeNoCount Then num_P1 += 1
@@ -169,10 +169,9 @@ Partial Class report_perform
                         sumAdjGross_P1 += ClsManage.convert2zero(dr("AdjustedGrossMargin").ToString)
                         sumOPEX_P1 += ClsManage.convert2zero(dr("OPEX").ToString)
                         sumTP_P1 += ClsManage.convert2zero(dr("TradingProfit").ToString)
-
                         If dr("% LFL").ToString <> "N/A" Then
                             lastRevenue_P1 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                            thisRevenue_P1 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                            thisRevenue_P1 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                         End If
 
                     End If
@@ -191,7 +190,7 @@ Partial Class report_perform
 
                             If dr("% LFL").ToString <> "N/A" Then
                                 lastRevenue_L2 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                                thisRevenue_L2 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                                thisRevenue_L2 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                             End If
                         Else
 
@@ -206,7 +205,7 @@ Partial Class report_perform
 
                             If dr("% LFL").ToString <> "N/A" Then
                                 lastRevenue_P2 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                                thisRevenue_P2 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                                thisRevenue_P2 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                             End If
                         End If
                     End If
@@ -225,7 +224,7 @@ Partial Class report_perform
 
                             If dr("% LFL").ToString <> "N/A" Then
                                 lastRevenue_L3 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                                thisRevenue_L3 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                                thisRevenue_L3 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                             End If
                         Else
 
@@ -240,7 +239,7 @@ Partial Class report_perform
 
                             If dr("% LFL").ToString <> "N/A" Then
                                 lastRevenue_P3 += ClsManage.convert2zero(dr("lastRevenue").ToString)
-                                thisRevenue_P3 += ClsManage.convert2zero(dr("TotalRevenue").ToString)
+                                thisRevenue_P3 += ClsManage.convert2zero(dr("thisRevenue").ToString)
                             End If
                         End If
                     End If
@@ -353,6 +352,24 @@ Partial Class report_perform
                 Dim resultLFL_P3 As String = getRightCell(ClsManage.convert2PercenLFLGrowth((thisRevenue_P3 / lastRevenue_P3) - 1))
                 Dim resultLFL_L3 As String = getRightCell(ClsManage.convert2PercenLFLGrowth((thisRevenue_L3 / lastRevenue_L3) - 1))
                 Dim resultLFL_Total3 As String = getRightCell(ClsManage.convert2PercenLFLGrowth(((thisRevenue_P3 + thisRevenue_L3) / (lastRevenue_P3 + lastRevenue_L3)) - 1))
+
+                'Sumary % LFL only ytd 
+                Dim strSumLFL As String = dt.Rows(0)("% SumLFL").ToString
+                Dim cma As String = ","
+                If strSumLFL <> "" Then
+                    resultLFL_P1 = getRightCell(strSumLFL.Split(cma)(0))
+                    resultLFL_L1 = getRightCell(strSumLFL.Split(cma)(1))
+                    resultLFL_Total1 = getRightCell(strSumLFL.Split(cma)(2))
+
+                    resultLFL_P2 = getRightCell(strSumLFL.Split(cma)(3))
+                    resultLFL_L2 = getRightCell(strSumLFL.Split(cma)(4))
+                    resultLFL_Total2 = getRightCell(strSumLFL.Split(cma)(5))
+
+                    resultLFL_P3 = getRightCell(strSumLFL.Split(cma)(6))
+                    resultLFL_L3 = getRightCell(strSumLFL.Split(cma)(7))
+                    resultLFL_Total3 = getRightCell(strSumLFL.Split(cma)(8))
+                End If
+
 
                 createCels("#B1E4B1", True, e, String.Format("|{0}|<div style='text-align:left'>Total</div>|||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", (num_L3 + num_P3).ToString, resultProduct3.ToString, resultGross_Total3, resultAdjGross_Total3, resultOPEX_Total3, resultPerTP_Total3, resultTP_Total3, resultLFL_Total3, resultSaleRev_Total3))
                 createCels("#B1E4B1", False, e, String.Format("|{0}|<div style='text-align:left'>Loss Maker</div>|||{1}|{7}|{8}|{2}|{3}|{4}|{5}|{6}|", num_L3.ToString, resultProduct_L3.ToString, resultGross_L3.ToString, resultAdjGross_L3.ToString, resultOPEX_L3, resultPerTP_L3, resultTP_L3, resultLFL_L3, resultSaleRev_L3))

@@ -119,7 +119,7 @@ Partial Class uc_ucLFL
                     brTopic = "<br/>"
                 End If
                 'lblTopicTable.Text = String.Format(clsHtml.htmlModelTopic, ReportType + " Model Report", brTopic)
-                lblTopicTable.Text = String.Format(clsHtml.htmlModelTopic, ReportName, brTopic)
+                lblTopicTable.Text = String.Format(clsHtml.htmlModelTopic, ReportName, brTopic).Replace("Number of Stores", "Number of Stores(Exc. Other Business)")
 
                 Dim reportYtd As String = IIf(ReportType = clsBts.reportType.YTD.ToString, ReportType + " ", "") 'ถ้าเป็น ytd ให้โชว์
                 If Integer.Parse(iMonth) < 4 Then

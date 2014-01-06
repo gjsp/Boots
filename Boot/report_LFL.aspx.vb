@@ -15,12 +15,6 @@ Partial Class report_LFL
             ddlMonth.DataSource = ClsDB.getMtdMonth(ddlYear.SelectedValue)
             ddlMonth.DataBind()
 
-            ddllo.DataValueField = "location_id"
-            ddllo.DataTextField = "location_name"
-            ddllo.DataSource = ClsDB.getLocation()
-            ddllo.DataBind()
-            ddllo.Items.Insert(0, New ListItem("All", ""))
-
             ClsDB.getCurrentcyToDDL(ddlRate)
 
         End If
@@ -36,18 +30,26 @@ Partial Class report_LFL
     Protected Sub SearchBt_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles SearchBt.Click
         Try
             Dim ds As New Data.DataSet
+            Dim bDate As String = "1/" + ddlMonth.SelectedValue + "/" + ddlYear.SelectedValue
+            Dim eDate As String = bDate
+
+            Dim beginDate As DateTime = DateTime.ParseExact(bDate, ClsManage.formatDateTime, Nothing)
+            Dim endDate As DateTime = DateTime.ParseExact(eDate, ClsManage.formatDateTime, Nothing)
+
             If ddlBy.SelectedIndex = 0 Then
-                ds = clsLFL.getSumFullMtdLfl(ddlYear.SelectedValue, ddlMonth.SelectedValue, ddlRate.SelectedValue)
-                ucModel.ReportType = clsBts.reportType.MTD.ToString
+                ds = clsLFL.getMtdLFL(beginDate, endDate, ddlRate.SelectedValue)
+                ucLFL.ReportType = clsBts.reportType.MTD.ToString
             ElseIf ddlBy.SelectedIndex = 1 Then
-                ds = clsBts.getModelYtd(ddlYear.SelectedValue, ddlMonth.SelectedValue, ddllo.SelectedValue, ddlRate.SelectedValue)
-                ucModel.ReportType = clsBts.reportType.YTD.ToString
+                bDate = "1/4/" + IIf(beginDate.Month < 4, (beginDate.Year - 1).ToString, beginDate.Year.ToString)
+                beginDate = DateTime.ParseExact(bDate, ClsManage.formatDateTime, Nothing)
+                ds = clsLFL.getYtdLFL(beginDate, endDate, ddlRate.SelectedValue)
+                ucLFL.ReportType = clsBts.reportType.YTD.ToString
             End If
-            ucModel.ReportName = ucModel.ReportType + " Model Report"
-            ucModel.iMonth = ddlMonth.SelectedValue
-            ucModel.iYear = ddlYear.SelectedValue
-            ucModel.ItemScrollWidth = 1000
-            ucModel.LoadReport(ds)
+            ucLFL.ReportName = ucLFL.ReportType + " LFL Report"
+            ucLFL.iMonth = ddlMonth.SelectedValue
+            ucLFL.iYear = ddlYear.SelectedValue
+            ucLFL.ItemScrollWidth = 0
+            ucLFL.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)
         End Try

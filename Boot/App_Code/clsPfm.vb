@@ -55,7 +55,273 @@ Public Class clsPfm
         End Try
     End Function
 
+    Public Shared Function getLFLMonthForYtd(bDate As DateTime, rate As String) As DataTable
+
+        Dim sqlTbl As String = IIf(rate = "", "mtd", "v_mtd('" + rate + "') mtd")
+        Dim eDate As DateTime = bDate
+        Dim beginNewStoreDate As DateTime = Nothing
+        beginNewStoreDate = DateTime.ParseExact(("1/4/" + bDate.Year.ToString), ClsManage.formatDateTime, Nothing)
+        If eDate.Month < 4 Then beginNewStoreDate = beginNewStoreDate.AddYears(-1)
+
+        Dim sql As String = "" & _
+" SELECT   costcenter.costcenter_code,mtd.TotalRevenue as thisRevenue,lfl.TotalRevenue as lastRevenue,  " & _
+" CASE WHEN mtd.StoreTradingProfit__Loss < 0 then 'L' ELSE 'P' END AS ProfitLoss_Maker," & _
+" CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
+"      WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(day,-1,@beginNewStoreDate) THEN 'y1' " & _
+"      ELSE 'n' END AS InDate " & _
+" FROM         (" & _
+"				SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(StoreTradingProfit__Loss) AS StoreTradingProfit__Loss " & _
+"				FROM  mtd  WHERE mtd.month_time BETWEEN @bDate and @eDate GROUP BY costcenter_id " & _
+"			  )mtd " & _
+"			  RIGHT JOIN costcenter ON mtd.costcenter_id = costcenter.costcenter_id " & _
+"              INNER JOIN store ON costcenter.costcenter_store = store.store_id and store.store_other = 'N' " & _
+"			  LEFT JOIN " & _
+"			  ( " & _
+"				SELECT mtd.costcenter_id,SUM(RETAIL_TESPIncome) AS TotalRevenue " & _
+"				FROM  mtd  inner join costcenter c on mtd.costcenter_id = c.costcenter_id " & _
+"				WHERE mtd.month_time BETWEEN DATEADD(year,-1,@bDate)  and DATEADD(year,-1,@eDate)" & _
+"				AND costcenter_opendt <= DATEADD(year,-1,@bDate) " & _
+"				AND c.costcenter_id not in (" + getTempCloseLFL() + ")" & _
+"				GROUP BY mtd.costcenter_id" & _
+"			  )lfl ON lfl.costcenter_id = mtd.costcenter_id" & _
+" WHERE  mtd.TotalRevenue is not null AND mtd.TotalRevenue <> 0 " & _
+" AND costcenter.costcenter_opendt  < DATEADD(month,1,@eDate) AND lfl.TotalRevenue is not null" & _
+" AND  (costcenter.costcenter_blockdt IS NULL OR costcenter.costcenter_blockdt > DATEADD(day,-1,DATEADD(month,1,@eDate)))" & _
+" ORDER BY costcenter.costcenter_code"
+
+        Dim dt As New DataTable
+        Dim con As New SqlConnection(strcon)
+        Dim cmd As New SqlCommand(sql, con)
+        Dim da As New SqlDataAdapter(cmd)
+
+        Dim parameter As New SqlParameter("@bDate", SqlDbType.DateTime)
+        parameter.Value = bDate
+        cmd.Parameters.Add(parameter)
+
+        parameter = New SqlParameter("@eDate", SqlDbType.DateTime)
+        parameter.Value = eDate
+        cmd.Parameters.Add(parameter)
+
+        parameter = New SqlParameter("@beginNewStoreDate", SqlDbType.DateTime)
+        parameter.Value = beginNewStoreDate
+        cmd.Parameters.Add(parameter)
+
+        Try
+            da.Fill(dt)
+            Return dt
+        Catch ex As Exception
+            Throw ex
+        Finally
+            dt.Dispose()
+            da.Dispose()
+            cmd.Dispose()
+        End Try
+
+    End Function
+
     Public Shared Function getPerformance(by As String, bDate As DateTime, eDate As DateTime, rate As String) As DataTable
+        '* ดึง costcenter ทั้งหมดมา แยก เป็น 2ชุด 
+        '1ชุดที่อยู่ใน วันที่ที่เลือก --> InDate = y
+        '2ชุดที่ไม่อยู่ในวันที่ที่เลือก --> InDate = n
+        'AND  (costcenter.costcenter_blockdt IS NULL OR costcenter.costcenter_blockdt > @eDate2) --> เงื่อนไขนี้คือ ห้ามมีวันที่ block หรือ มากกว่าวันสุดท้ายที่เลือก
+        Dim sqlTbl As String = IIf(rate = "", "mtd", "v_mtd('" + rate + "') mtd")
+        Dim beginNewStoreDate As DateTime = Nothing
+
+        If by = clsBts.reportType.MTD.ToString Then
+            eDate = bDate
+
+            '*** case mtd  เฉพาะ new store ต้องเริ่มต้นด้วนเดือน Apr
+            beginNewStoreDate = DateTime.ParseExact(("1/4/" + bDate.Year.ToString), ClsManage.formatDateTime, Nothing)
+            If eDate.Month < 4 Then beginNewStoreDate = beginNewStoreDate.AddYears(-1)
+        ElseIf by = clsBts.reportType.YTD.ToString Then
+            eDate = bDate
+            bDate = DateTime.ParseExact(("1/4/" + bDate.Year.ToString), ClsManage.formatDateTime, Nothing)
+            If eDate.Month < 4 Then
+                bDate = bDate.AddYears(-1)
+            End If
+            beginNewStoreDate = bDate 'start date same MTD
+        Else 'custom
+            beginNewStoreDate = bDate
+        End If
+        Dim sql As String = "" & _
+"SELECT   mtd.TotalRevenue, " & _
+"                     lfl.TotalRevenue AS lastRevenue, mtd.TotalRevenue as thisRevenue,'' as [% SumLFL], " & _
+"					  costcenter.costcenter_code ,location.location_name, " & _
+"					  costcenter.costcenter_name , " & _
+"					  store.store_name, " & _
+"                     mtd.saleRevenue," & _
+"                     CASE WHEN costcenter_sale_area = 0 THEN 0 ELSE CAST( mtd.TotalRevenue / costcenter_sale_area/(DATEDIFF(month,@bDate,@eDate)+1)  AS DECIMAL(18,2)) END AS [Productivity], " & _
+"                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST( CAST((mtd.GrossProfit/mtd.TotalRevenue)*100 as DECIMAL(18,1)) as varchar) + '%' END AS [% Gross Profit], " & _
+"                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST( CAST((mtd.AdjustedGrossMargin/mtd.TotalRevenue)*100 as DECIMAL(18,1)) as varchar) + '%' END AS [% Adj Gross Profit], " & _
+"                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST(((mtd.SupplyChainCosts + mtd.TotalStoreExpenses) / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% OPEX], " & _
+"                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST((mtd.StoreTradingProfit__Loss / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% Trading Profit/Loss], " & _
+"					  CASE WHEN (lfl.TotalRevenue = 0 or lfl.TotalRevenue is null) THEN 'N/A' ELSE cast(-cast(100- ( 100 * cast( mtd.TotalRevenue/lfl.TotalRevenue as decimal(6,3) ) ) as decimal(10,1)) as varchar)+'%' END AS [% LFL], " & _
+"					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
+"                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX, " & _
+"					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
+"                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(day,-1,@beginNewStoreDate) THEN 'y1' " & _
+"                     ELSE 'n' END AS InDate " & _
+" FROM       (" & _
+"				SELECT costcenter_id,SUM(TotalRevenue) AS TotalRevenue,SUM(RETAIL_TESPIncome) AS saleRevenue,SUM(GrossProfit) AS GrossProfit,SUM(AdjustedGrossMargin) AS AdjustedGrossMargin, " & _
+"				SUM(SupplyChainCosts) AS SupplyChainCosts,SUM(StoreTradingProfit__Loss) AS StoreTradingProfit__Loss,SUM(TotalStoreExpenses) as TotalStoreExpenses " & _
+"				FROM " + sqlTbl + " WHERE mtd.month_time BETWEEN @bDate and @eDate GROUP BY costcenter_id " & _
+"			 )   mtd RIGHT JOIN " & _
+"                      costcenter ON mtd.costcenter_id = costcenter.costcenter_id INNER JOIN " & _
+"                      store ON costcenter.costcenter_store = store.store_id and store.store_other = 'N'  " & _
+"                      LEFT JOIN location ON costcenter.costcenter_location = location.location_id " & _
+"                      LEFT JOIN " & _
+"                      ( " & _
+"						SELECT mtd.costcenter_id,SUM(RETAIL_TESPIncome) AS TotalRevenue " & _
+"						FROM " + sqlTbl + " inner join costcenter c on mtd.costcenter_id = c.costcenter_id " & _
+"                       WHERE mtd.month_time BETWEEN DATEADD(year,-1,@bDate)  and DATEADD(year,-1,@eDate)" & _
+"                       AND costcenter_opendt <= DATEADD(year,-1,@bDate) " & _
+"                       AND c.costcenter_id not in (" + getTempCloseLFL() + ") " & _
+"						GROUP BY mtd.costcenter_id" & _
+"                      )lfl ON lfl.costcenter_id = mtd.costcenter_id" & _
+" WHERE  mtd.TotalRevenue is not null AND mtd.TotalRevenue <> 0 " & _
+"	   AND costcenter.costcenter_opendt  < DATEADD(month,1,@eDate)" & _
+"	   AND  (costcenter.costcenter_blockdt IS NULL OR costcenter.costcenter_blockdt > DATEADD(day,-1,DATEADD(month,1,@eDate)) )" & _
+" ORDER BY InDate,mtd.StoreTradingProfit__Loss DESC"
+        '" AND lfl.TotalRevenue is not null " & _ costcenter_code 
+        Dim dt As New DataTable
+        Dim con As New SqlConnection(strcon)
+        Dim cmd As New SqlCommand(sql, con)
+        Dim da As New SqlDataAdapter(cmd)
+
+        Dim parameter As New SqlParameter("@bDate", SqlDbType.DateTime)
+        parameter.Value = bDate
+        cmd.Parameters.Add(parameter)
+
+        parameter = New SqlParameter("@eDate", SqlDbType.DateTime)
+        parameter.Value = eDate
+        cmd.Parameters.Add(parameter)
+
+        parameter = New SqlParameter("@beginNewStoreDate", SqlDbType.DateTime)
+        parameter.Value = beginNewStoreDate
+        cmd.Parameters.Add(parameter)
+
+        Try
+            da.Fill(dt)
+
+            If dt.Rows.Count > 0 And by <> clsBts.reportType.MTD.ToString Then
+
+                Dim dtLFL As New DataTable
+                Dim dtTemp As New DataTable : dtTemp = Nothing
+                Dim tempDate As DateTime = bDate
+
+                While (tempDate <= eDate)
+                    dtLFL = getLFLMonthForYtd(tempDate, rate)
+                    If dtTemp Is Nothing Then
+                        dtTemp = dtLFL
+                    Else
+                        dtTemp.Merge(dtLFL)
+                    End If
+                    tempDate = tempDate.AddMonths(1)
+                End While
+
+                dtLFL = Nothing
+                dtLFL = dt.Clone
+                Dim code As String = ""
+                Dim lastRev As Double = 0
+                Dim thisRev As Double = 0
+                Dim totalLFL As String = ClsManage.convert2PercenLFLGrowth((dtTemp.Compute("SUM(thisRevenue)", "") / dtTemp.Compute("SUM(lastRevenue)", "")) - 1)
+
+                For Each dr As DataRow In dt.Rows
+                    code = dr("costcenter_code").ToString
+                    thisRev = IIf(dtTemp.Compute("SUM(thisRevenue)", "costcenter_code='" + code + "'").ToString = "", 0, dtTemp.Compute("SUM(thisRevenue)", "costcenter_code='" + code + "'"))
+                    lastRev = IIf(dtTemp.Compute("SUM(lastRevenue)", "costcenter_code='" + code + "'").ToString = "", 0, dtTemp.Compute("SUM(lastRevenue)", "costcenter_code='" + code + "'"))
+
+                    'For Each drT As DataRow In dtTemp.Rows
+                    '    If drT("costcenter_code").ToString = code Then
+                    '        drT("checked") = "T"
+                    '    End If
+                    'Next
+
+                    If thisRev = 0 Or lastRev = 0 Then
+                        dr("% LFL") = "N/A"
+                    Else
+                        dr("% LFL") = ClsManage.convert2PercenLFLGrowth((thisRev / lastRev) - 1)
+                    End If
+                    dr("lastRevenue") = lastRev
+                    dr("thisRevenue") = thisRev
+                Next
+
+                Dim thisRevProfit As Double = 0 : Dim thisRevLoss As Double = 0
+                Dim lastRevProfit As Double = 0 : Dim lastRevLoss As Double = 0
+
+                Dim lastRevenue_P1 As Double = 0 : Dim lastRevenue_P2 As Double = 0 : Dim lastRevenue_P3 As Double = 0
+                Dim lastRevenue_L1 As Double = 0 : Dim lastRevenue_L2 As Double = 0 : Dim lastRevenue_L3 As Double = 0
+
+                Dim thisRevenue_P1 As Double = 0 : Dim thisRevenue_P2 As Double = 0 : Dim thisRevenue_P3 As Double = 0
+                Dim thisRevenue_L1 As Double = 0 : Dim thisRevenue_L2 As Double = 0 : Dim thisRevenue_L3 As Double = 0
+
+                For Each dr As DataRow In dtTemp.Rows
+
+                    thisRev += dr("thisRevenue")
+                    lastRev += dr("lastRevenue")
+
+                    'Summary All
+                    If dr("ProfitLoss_Maker") = "P" Then
+                        thisRevenue_P1 += dr("thisRevenue")
+                        lastRevenue_P1 += dr("lastRevenue")
+                    Else
+                        thisRevenue_L1 += dr("thisRevenue")
+                        lastRevenue_L1 += dr("lastRevenue")
+                    End If
+
+                    'Summary2 Exclude New Store
+                    If dr("InDate") <> "y2" Then
+                        If dr("ProfitLoss_Maker") = "P" Then
+                            thisRevenue_P2 += dr("thisRevenue")
+                            lastRevenue_P2 += dr("lastRevenue")
+                        Else
+                            thisRevenue_L2 += dr("thisRevenue")
+                            lastRevenue_L2 += dr("lastRevenue")
+                        End If
+                    End If
+
+                    'Summary3 Exclude New Store
+                    If dr("InDate") = "n" Then
+                        If dr("ProfitLoss_Maker") = "P" Then
+                            thisRevenue_P3 += dr("thisRevenue")
+                            lastRevenue_P3 += dr("lastRevenue")
+                        Else
+                            thisRevenue_L3 += dr("thisRevenue")
+                            lastRevenue_L3 += dr("lastRevenue")
+                        End If
+                    End If
+
+                Next
+                Dim resultLFL_P1 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_P1 / lastRevenue_P1) - 1)
+                Dim resultLFL_L1 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_L1 / lastRevenue_L1) - 1)
+                Dim resultLFL_Total1 As String = totalLFL
+
+                Dim resultLFL_P2 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_P2 / lastRevenue_P2) - 1)
+                Dim resultLFL_L2 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_L2 / lastRevenue_L2) - 1)
+                Dim resultLFL_Total2 As String = ClsManage.convert2PercenLFLGrowth(((thisRevenue_P2 + thisRevenue_L2) / (lastRevenue_P2 + lastRevenue_L2)) - 1)
+
+                Dim resultLFL_P3 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_P3 / lastRevenue_P3) - 1)
+                Dim resultLFL_L3 As String = ClsManage.convert2PercenLFLGrowth((thisRevenue_L3 / lastRevenue_L3) - 1)
+                Dim resultLFL_Total3 As String = ClsManage.convert2PercenLFLGrowth(((thisRevenue_P3 + thisRevenue_L3) / (lastRevenue_P3 + lastRevenue_L3)) - 1)
+
+                Dim cma As String = ","
+                dt.Rows(0)("% SumLFL") = resultLFL_P1 + cma + resultLFL_L1 + cma + resultLFL_Total1 + cma + _
+                                         resultLFL_P2 + cma + resultLFL_L2 + cma + resultLFL_Total2 + cma + _
+                                         resultLFL_P3 + cma + resultLFL_L3 + cma + resultLFL_Total3
+            End If
+            
+            Return dt
+        Catch ex As Exception
+            Throw ex
+        Finally
+            dt.Dispose()
+            da.Dispose()
+            cmd.Dispose()
+        End Try
+
+    End Function
+
+    Public Shared Function getPerformance2(by As String, bDate As DateTime, eDate As DateTime, rate As String) As DataTable ' no add ytd
         '* ดึง costcenter ทั้งหมดมา แยก เป็น 2ชุด 
         '1ชุดที่อยู่ใน วันที่ที่เลือก --> InDate = y
         '2ชุดที่ไม่อยู่ในวันที่ที่เลือก --> InDate = n
@@ -92,8 +358,8 @@ Public Class clsPfm
 "                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST(((mtd.SupplyChainCosts + mtd.TotalStoreExpenses) / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% OPEX], " & _
 "                     CASE WHEN mtd.TotalRevenue = 0 THEN '0.0%' ELSE CAST(CAST((mtd.StoreTradingProfit__Loss / mtd.TotalRevenue) * 100 as DECIMAL(18,1)) as varchar)+ '%' END AS [% Trading Profit/Loss], " & _
 "					  CASE WHEN (lfl.TotalRevenue = 0 or lfl.TotalRevenue is null) THEN 'N/A' ELSE cast(-cast(100- ( 100 * cast( mtd.TotalRevenue/lfl.TotalRevenue as decimal(6,3) ) ) as decimal(10,1)) as varchar)+'%' END AS [% LFL], " & _
-"					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
-"                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses as OPEX, " & _
+"					  costcenter.costcenter_opendt ,mtd.GrossProfit,mtd.AdjustedGrossMargin,CAST(mtd.StoreTradingProfit__Loss  as DECIMAL(18,2)) AS TradingProfit, " & _
+"                     costcenter_sale_area,DATEDIFF(month,@bDate,@eDate)+1 as monthdiff,mtd.SupplyChainCosts + mtd.TotalStoreExpenses AS OPEX, " & _
 "					  CASE WHEN costcenter.costcenter_opendt  BETWEEN @beginNewStoreDate and DATEADD(day,-1,DATEADD(month,1,@eDate)) THEN 'y2' " & _
 "                          WHEN costcenter.costcenter_opendt  BETWEEN DATEADD(year,-1,@beginNewStoreDate) and DATEADD(day,-1,@beginNewStoreDate) THEN 'y1' " & _
 "                     ELSE 'n' END AS InDate " & _
@@ -107,7 +373,7 @@ Public Class clsPfm
 "                      LEFT JOIN location ON costcenter.costcenter_location = location.location_id " & _
 "                      LEFT JOIN " & _
 "                      ( " & _
-"						SELECT mtd.costcenter_id,SUM(TotalRevenue) AS TotalRevenue " & _
+"						SELECT mtd.costcenter_id,SUM(RETAIL_TESPIncome) AS TotalRevenue " & _
 "						FROM " + sqlTbl + " inner join costcenter c on mtd.costcenter_id = c.costcenter_id " & _
 "                       WHERE mtd.month_time BETWEEN DATEADD(year,-1,@bDate)  and DATEADD(year,-1,@eDate)" & _
 "                       AND costcenter_opendt <= DATEADD(year,-1,@bDate) " & _
@@ -117,7 +383,6 @@ Public Class clsPfm
 " WHERE  mtd.TotalRevenue is not null AND mtd.TotalRevenue <> 0 " & _
 "	   AND costcenter.costcenter_opendt  < DATEADD(month,1,@eDate)" & _
 "	   AND  (costcenter.costcenter_blockdt IS NULL OR costcenter.costcenter_blockdt > DATEADD(day,-1,DATEADD(month,1,@eDate)) )" & _
-"      AND lfl.TotalRevenue is not null " & _
 " ORDER BY InDate,mtd.StoreTradingProfit__Loss DESC"
 
         Dim dt As New DataTable
@@ -219,6 +484,8 @@ Public Class clsPfm
             Throw ex
         End Try
     End Function
+
+
 
     Public Shared Function getLFLGrowthPfmByMonth(ByVal years As String, ByVal mon As String, rate As String) As DataTable
         'store_id = format
