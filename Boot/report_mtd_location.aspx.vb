@@ -40,6 +40,7 @@ Partial Class report_mtd_location
             ucModel.iMonth = ddlMonth.SelectedValue
             ucModel.iYear = ddlYear.SelectedValue
             ucModel.ItemScrollWidth = 650
+            ucModel.ExcelTopic = ddlBy.SelectedValue + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + "&nbsp;&nbsp;&nbsp;&nbsp;Currency Rate " + ddlRate.SelectedItem.Text
             ucModel.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)

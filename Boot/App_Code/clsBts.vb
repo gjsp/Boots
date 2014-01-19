@@ -13,6 +13,7 @@ Imports System.Configuration.ConfigurationManager
 Public Class clsBts
     Public Shared strcon As String = ConfigurationManager.ConnectionStrings("bootsConnectionString").ConnectionString
     Public Shared storeNoCount As String = "CDS"
+    Public Shared strBoots As String = "Boots Retail (Thailand) Ltd."
 
     Enum FullTotal
         Total = 1
@@ -4416,7 +4417,6 @@ Public Class clsBts
         ''HttpContext.Current.Response.End()
 
 
-
         HttpContext.Current.Response.Clear()
         HttpContext.Current.Response.Buffer = True
         HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.Unicode
@@ -4437,7 +4437,7 @@ Public Class clsBts
         data_temp = data_temp.Replace("class='tdyoy1'", "style='text-align:right';")
         data_temp = data_temp.Replace("class='tball2'", "style='font-family:Arial;font-size:13px;border-bottom:1px solid #2c2b2b;'")
         data_temp = data_temp.Replace("class='tbTotal'", "style='font-family:Arial;font-size:13px;border-bottom:1px solid #2c2b2b;border-left:2.5px solid #2c2b2b;'")
-        data_temp = data_temp.Replace("<table", "<style> TD { mso-number-format:\@; } </style> <table ")
+        'data_temp = data_temp.Replace("<table", "<style> TD { mso-number-format:\@; } </style> <table ")
 
         HttpContext.Current.Response.Output.Write(data_temp)
         HttpContext.Current.Response.Flush()

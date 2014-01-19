@@ -100,7 +100,7 @@
                     </asp:DataList>
                 </td>
                 <td>
-                    <div id="div_item" runat="server" class="scroll">
+                    <div id="div_item" runat="server" class="scroll3">
                         <asp:DataList ID="dlItem" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
                             CellPadding="0" BorderStyle="None">
                             <ItemTemplate>

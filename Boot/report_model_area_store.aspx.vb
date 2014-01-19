@@ -60,6 +60,7 @@ Partial Class report_model_area_store
             ucAreaStore1.iMonth = ddlMonth.SelectedValue
             ucAreaStore1.iYear = ddlYear.SelectedValue
             ucAreaStore1.ItemScrollWidth = 1100
+            ucAreaStore1.ExcelTopic = "Area " + ddlarea.SelectedValue + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + "&nbsp;&nbsp;&nbsp;&nbsp;Currency Rate " + ddlRate.SelectedItem.Text
             ucAreaStore1.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)

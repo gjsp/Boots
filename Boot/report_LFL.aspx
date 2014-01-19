@@ -43,10 +43,6 @@
          </div>
         <asp:Button ID="SearchBt" runat="server" Text="Search" Height="23px"/>
         <uc1:ucLFL runat="server" ID="ucLFL" />
-
-    </div>
-          
- 
-           
+    </div>           
 </asp:Content>
 

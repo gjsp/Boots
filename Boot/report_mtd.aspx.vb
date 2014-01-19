@@ -47,6 +47,11 @@ Partial Class report_mtd
             ucModel.iMonth = ddlMonth.SelectedValue
             ucModel.iYear = ddlYear.SelectedValue
             ucModel.ItemScrollWidth = 1100
+            Dim strLocal As String = ""
+            If ddllo.SelectedIndex <> 0 Then
+                strLocal = " Location " + ddllo.SelectedItem.Text
+            End If
+            ucModel.ExcelTopic = ddlBy.SelectedValue + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + strLocal + "    Currency Rate " + ddlRate.SelectedItem.Text
             ucModel.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)

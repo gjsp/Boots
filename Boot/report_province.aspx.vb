@@ -54,6 +54,7 @@ Partial Class report_province
             ucProvince1.iMonth = ddlMonth.SelectedValue
             ucProvince1.iYear = ddlYear.SelectedValue
             ucProvince1.ItemScrollWidth = 940
+            ucProvince1.ExcelTopic = ddlProvince.SelectedItem.Text + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + " - " + ddlMonth2.SelectedItem.Text + " " + ddlYear2.SelectedItem.Text + "&nbsp;&nbsp;&nbsp;&nbsp;Currency Rate " + ddlRate.SelectedItem.Text
             ucProvince1.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)

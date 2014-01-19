@@ -49,6 +49,7 @@ Partial Class report_LFL
             ucLFL.iMonth = ddlMonth.SelectedValue
             ucLFL.iYear = ddlYear.SelectedValue
             ucLFL.ItemScrollWidth = 0
+            ucLFL.ExcelTopic = ddlBy.SelectedValue + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + "&nbsp;&nbsp;&nbsp;&nbsp;Currency Rate " + ddlRate.SelectedItem.Text
             ucLFL.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)

@@ -102,6 +102,17 @@ Partial Class uc_ucLFL
         End Set
     End Property
 
+    Private _ExcelTopic As String
+    Public Property ExcelTopic() As String
+        Get
+            Return ViewState("_ExcelTopic").ToString()
+        End Get
+        Set(ByVal value As String)
+            ViewState("_ExcelTopic") = value
+        End Set
+    End Property
+
+
     Public Sub LoadReport(ds As Data.DataSet)
         Try
             If ds.Tables.Count = 0 OrElse ds.Tables(clsBts.reportPart.Item.ToString).Rows.Count = 0 Then
@@ -288,8 +299,10 @@ Partial Class uc_ucLFL
         Try
             Dim sw As New IO.StringWriter()
             Dim htw As New HtmlTextWriter(sw)
+            Dim htmlHead As String = "<div style='font-weight:bold'>" + clsBts.strBoots + "</div><div style='font-weight:bold'>" + ExcelTopic + " </div>"
+
             temp_body.RenderControl(htw)
-            clsBts.ExportToExcel(sw.ToString, ReportTopic)
+            clsBts.ExportToExcel(htmlHead + sw.ToString, ReportTopic)
 
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message, , , "err")

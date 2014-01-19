@@ -41,6 +41,7 @@ Partial Class report_model_area
             ucReport.iMonth = ddlMonth.SelectedValue
             ucReport.iYear = ddlYear.SelectedValue
             ucReport.ItemScrollWidth = 1100
+            ucReport.ExcelTopic = ddlBy.SelectedItem.Text + " " + ddlMonth.SelectedItem.Text + " " + ddlYear.SelectedItem.Text + "&nbsp;&nbsp;&nbsp;&nbsp;Currency Rate " + ddlRate.SelectedItem.Text
             ucReport.LoadReport(ds)
         Catch ex As Exception
             ClsManage.alert(Page, ex.Message)
