@@ -61,6 +61,9 @@
                     - <a href="lfl_mtd_report.aspx">MTD LFL Report</a></div>
                 <div style="padding-top: 5px;">
                     - <a href="lfl_ytd_report.aspx">YTD LFL Report</a></div>--%>
+                 <div style="padding-top: 5px;">
+                    - <a href="report_LFL_store.aspx">New LFL By Store Report</a></div>
+
                 <div style="padding-top: 5px;">
                     - <a href="lfl_by_store_report.aspx">LFL By Store Report</a></div>
                 <div style="padding-top: 5px;">

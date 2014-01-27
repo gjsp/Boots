@@ -29,7 +29,6 @@ Public Class clsLFL
         End Try
     End Function
 
-
     Public Shared Function getMtdLFL(bDate As DateTime, eDate As DateTime, rate As String) As DataSet
 
         Dim lastyear As String = bDate.Year - 1
@@ -40,22 +39,28 @@ Public Class clsLFL
 
         Dim sqlCol As String = "SELECT COUNT(DISTINCT m.costcenter_id) as cnum, " & _
             "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
-            "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,SUM(lastRevenue) as lastRevenue,SUM(lastLoss) as lastLoss, "
+            "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss, "
 
         Dim sqlCount_closed As String = "select count(distinct costcenter_id) from mtd " & _
-                    "where month_time  between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
-                    "and costcenter_id in ( " & _
-                    "	select costcenter_id from costcenter " & _
-                    "	where costcenter_blockdt between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
-                    "	and costcenter_store in (select store_id from store where store_other = 'N')  " & _
-                    ")"
+            "where month_time  between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
+            "and costcenter_id in ( " & _
+            "	select costcenter_id from costcenter " & _
+            "	where costcenter_blockdt between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
+            "	and costcenter_store in (select store_id from store where store_other = 'N')  " & _
+            ")"
+
+        'Dim sqlCount_closed As String = "select  count(distinct m.costcenter_id) as cnum " & _
+        '        "from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+        '        "where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+        '        "and month_time between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) and RETAIL_TESPIncome <> 0 " & _
+        '        "and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)"
 
         Dim sqlCol_closed As String = "SELECT (" + sqlCount_closed + ") as cnum, " & _
           "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
-          "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,SUM(lastRevenue) as lastRevenue,SUM(lastLoss) as lastLoss,"
+          "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss,"
 
         Dim sqlLFL As String = "from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where m.month_time between @bDate and @eDate and m.totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) )  " & _
@@ -73,7 +78,7 @@ Public Class clsLFL
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=4,store_id = 4,store_name = 'Non LFL' " & _
 "from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id  " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and month_time between @bDate and @eDate " & _
 "and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) ) " & _
@@ -83,18 +88,24 @@ Public Class clsLFL
 "" + sqlCol_closed + "" & _
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=3,store_id = 3,store_name = 'Closed' " & _
-"from  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
-"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
-"and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and c.costcenter_blockdt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and year(month_time) = year(costcenter_blockdt) and month(month_time) = month(costcenter_blockdt) " & _
+"from (" & _
+"	select m.*,costcenter_sale_area,costcenter_total_area" & _
+"	from  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id  " & _
+"	where c.costcenter_store in (select store_id from store where store_other = 'N')" & _
+"	and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate))" & _
+"	and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)" & _
+")m1 right join (" & _
+"	SELECT  month_time, c.costcenter_id, ISNULL(RETAIL_TESPIncome, 0) AS lastRevenue, ISNULL(StoreTradingProfit__Loss, 0) AS lastLoss" & _
+"    FROM  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id" & _
+"    WHERE      (month_time = DATEADD(year, - 1, @bDate))" & _
+"    and costcenter_blockdt is not null and costcenter_blockdt <  dateadd(month,1, @eDate)" & _
+")m2 on m1.costcenter_id = m2.costcenter_id " & _
 "union " & _
 "" + sqlCol + "" & _
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=2,store_id = 2,store_name = 'New Store' " & _
 "from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and month_time between @bDate and @eDate " & _
@@ -104,11 +115,24 @@ Public Class clsLFL
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=1,store_id = 1,store_name = 'Other Business' " & _
 "from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'Y') " & _
 "and m.month_time = @bDate " & _
 ")LFL order by store_id desc"
+
+
+        ''sql Closed old
+        '"" + sqlCol + "" & _
+        '"" + clsBts.columnModelSum() + "" & _
+        '",costcenter_store=4,store_id = 4,store_name = 'Non LFL' " & _
+        '"from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id  " & _
+        '"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+        '"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+        '"and month_time between @bDate and @eDate " & _
+        '"and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) ) " & _
+        '"and c.costcenter_opendt < @openyear " & _
+        '"and c.costcenter_id not in( select c.costcenter_id " + sqlLFL + ") " & _
 
         sql = sql.Replace("SUM(TotalRevenue)", "SUM(RETAIL_TESPIncome)")
         Dim con As New SqlConnection(strcon)
@@ -531,6 +555,10 @@ Public Class clsLFL
                     dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth((dr("SumTotalRevenue") / dr("lastRevenue")) - 1)
                     dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth((dr("SumStoreTradingProfit__Loss") / dr("lastLoss")) - 1)
                 End If
+
+                'If dr("store_name") = "Closed" Then
+                '    dr("cnum") = getCountClosedYtdLFL(bDate, eDate).ToString
+                'End If
             Next
 
             Dim ds As New DataSet
@@ -616,23 +644,30 @@ Public Class clsLFL
 
         Dim sqlCol As String = "SELECT COUNT(DISTINCT m.costcenter_id) as cnum, " & _
             "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
-            "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,SUM(lastRevenue) as lastRevenue,SUM(lastLoss) as lastLoss, "
+            "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss, "
 
         Dim sqlCount_closed As String = "select count(distinct costcenter_id) from mtd " & _
-                    "where month_time  between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
-                    "and costcenter_id in ( " & _
-                    "	select costcenter_id from costcenter " & _
-                    "	where costcenter_blockdt between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
-                    "	and costcenter_store in (select store_id from store where store_other = 'N')  " & _
-                    ")"
+            "where month_time  between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
+            "and costcenter_id in ( " & _
+            "	select costcenter_id from costcenter " & _
+            "	where costcenter_blockdt between @openyear and dateadd(month,1,dateadd(day,-1,@eDate)) " & _
+            "	and costcenter_store in (select store_id from store where store_other = 'N')  " & _
+            ")"
 
+        'Dim sqlCount_closed As String = "select  count(distinct m.costcenter_id) as cnum " & _
+        '        "from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+        '        "where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+        '        "and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) and RETAIL_TESPIncome <> 0 " & _
+        '        "and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)"
+
+        ' User function getCountClosedYtdLFL หาจำนวนที่หลัง
         Dim sqlCol_closed As String = "SELECT (" + sqlCount_closed + ") as cnum, " & _
           "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
-          "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,SUM(lastRevenue) as lastRevenue,SUM(lastLoss) as lastLoss,"
+          "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss,"
 
         Dim sqlLFL As String = "from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id " & _
-"left join (select costcenter_id,RETAIL_TESPIncome as lastRevenue,StoreTradingProfit__Loss as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
-"where m.month_time between @bDate and @eDate and totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"where m.month_time between @bDate and @eDate and m.totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) )  " & _
 "and c.costcenter_opendt < @openyear and not ( c.costcenter_opendt > dateadd(year,-1, @eDate) and c.costcenter_opendt <= dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) ) " & _
@@ -658,18 +693,24 @@ Public Class clsLFL
 "" + sqlCol_closed + "" & _
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=3,store_id = 3,store_name = 'Closed' " & _
-"from  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
-"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
-"and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and c.costcenter_blockdt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and year(month_time) = year(costcenter_blockdt) and month(month_time) = month(costcenter_blockdt) " & _
+"from (" & _
+"	select m.*,costcenter_sale_area,costcenter_total_area" & _
+"	from  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id  " & _
+"	where c.costcenter_store in (select store_id from store where store_other = 'N')" & _
+"	and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate))" & _
+"	and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)" & _
+")m1 right join (" & _
+"	SELECT  month_time, c.costcenter_id, ISNULL(RETAIL_TESPIncome, 0) AS lastRevenue, ISNULL(StoreTradingProfit__Loss, 0) AS lastLoss" & _
+"    FROM  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id" & _
+"    WHERE      (month_time = DATEADD(year, - 1, @bDate))" & _
+"    and costcenter_blockdt is not null and costcenter_blockdt <  dateadd(month,1, @eDate)" & _
+")m2 on m1.costcenter_id = m2.costcenter_id " & _
 "union " & _
 "" + sqlCol + "" & _
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=2,store_id = 2,store_name = 'New Store' " & _
 "from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and month_time between @bDate and @eDate " & _
@@ -679,7 +720,7 @@ Public Class clsLFL
 "" + clsBts.columnModelSum() + "" & _
 ",costcenter_store=1,store_id = 1,store_name = 'Other Business' " & _
 "from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from mtd where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'Y') " & _
 "and m.month_time = @bDate " & _
@@ -717,53 +758,205 @@ Public Class clsLFL
         End Try
     End Function
 
-    Public Shared Function getCountMtdLFLEachMonth(bDate As DateTime) As DataTable
+    Public Shared Function getCountClosedYtdLFL(bDate As DateTime, eDate As DateTime) As Integer
 
-        'For Only Count LFL
-        Dim eDate As DateTime = bDate
+        'For Only Count Closed
+        Dim sql As String =
+    "select   distinct m.costcenter_id " & _
+    "from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id  " & _
+    "where c.costcenter_store in (select store_id from store where store_other = 'N')  " & _
+    "and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) and RETAIL_TESPIncome <> 0 " & _
+    "and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)"
+
+        Dim con As New SqlConnection(strcon)
+        Dim cmd As New SqlCommand(sql, con)
+
+        Dim parameter As New SqlParameter("@bDate", SqlDbType.DateTime)
+        parameter.Value = bDate
+        cmd.Parameters.Add(parameter)
+
+        parameter = New SqlParameter("@eDate", SqlDbType.DateTime)
+        parameter.Value = eDate
+        cmd.Parameters.Add(parameter)
+
+        Try
+            Dim da As New SqlDataAdapter(cmd)
+            Dim dt As New DataTable
+            da.Fill(dt)
+            Return dt.Rows.Count
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    '    Public Shared Function getCountMtdLFLEachMonth(bDate As DateTime) As DataTable
+
+    '        'For Only Count LFL
+    '        Dim eDate As DateTime = bDate
+    '        Dim lastyear As String = bDate.Year - 1
+    '        Dim mon As String = bDate.Month.ToString
+    '        Dim years As String = bDate.Year.ToString
+
+    '        Dim sqlLFL As String = "from mtd m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id " & _
+    '"where m.month_time between @bDate and @eDate and totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
+    '"and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+    '"and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) )  " & _
+    '"and c.costcenter_opendt < @openyear and not ( c.costcenter_opendt > dateadd(year,-1, @eDate) and c.costcenter_opendt <= dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) ) " & _
+    '"and m.costcenter_id not in (" + getTempCloseLFL() + ") "
+
+    '        Dim sql As String =
+    '"SELECT m.costcenter_id,store_name = 'LFL' " & _
+    '"" + sqlLFL + "" & _
+    '"union " & _
+    '"SELECT m.costcenter_id,store_name = 'Non LFL' " & _
+    '"from mtd m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id  " & _
+    '"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+    '"and month_time between @bDate and @eDate " & _
+    '"and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) ) " & _
+    '"and c.costcenter_opendt < @openyear " & _
+    '"and c.costcenter_id not in( select c.costcenter_id " + sqlLFL + ") " & _
+    '"union " & _
+    '"SELECT m.costcenter_id,store_name = 'Closed' " & _
+    '"from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+    '"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+    '"and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
+    '"and c.costcenter_blockdt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
+    '"and year(month_time) = year(costcenter_blockdt) and month(month_time) = month(costcenter_blockdt) " & _
+    '"union " & _
+    '"SELECT m.costcenter_id,store_name = 'New Store' " & _
+    '"from mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+    '"where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
+    '"and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+    '"and month_time between @bDate and @eDate " & _
+    '"and c.costcenter_opendt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
+    '"union " & _
+    '"SELECT m.costcenter_id,store_name = 'Other Business' " & _
+    '"from mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+    '"where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
+    '"and c.costcenter_store in (select store_id from store where store_other = 'Y') " & _
+    '"and m.month_time = @bDate "
+
+    '        Dim con As New SqlConnection(strcon)
+    '        Dim cmd As New SqlCommand(sql, con)
+
+    '        Dim parameter As New SqlParameter("@openyear", SqlDbType.DateTime)
+    '        If mon < 4 Then
+    '            parameter.Value = DateTime.ParseExact(("1/4/" + lastyear), ClsManage.formatDateTime, Nothing)
+    '        Else
+    '            parameter.Value = DateTime.ParseExact(("1/4/" + years), ClsManage.formatDateTime, Nothing)
+    '        End If
+    '        cmd.Parameters.Add(parameter)
+
+    '        parameter = New SqlParameter("@bDate", SqlDbType.DateTime)
+    '        parameter.Value = bDate
+    '        cmd.Parameters.Add(parameter)
+
+    '        parameter = New SqlParameter("@eDate", SqlDbType.DateTime)
+    '        parameter.Value = eDate
+    '        cmd.Parameters.Add(parameter)
+
+    '        Try
+    '            Dim da As New SqlDataAdapter(cmd)
+    '            Dim dt As New DataTable
+    '            da.Fill(dt)
+    '            Return dt
+
+    '        Catch ex As Exception
+    '            Throw ex
+    '        End Try
+    '    End Function
+
+
+#End Region
+
+#Region "By Store"
+    Public Shared Function getMtdLFLByStore(bDate As DateTime, eDate As DateTime, model As String, rate As String) As DataSet
+
         Dim lastyear As String = bDate.Year - 1
         Dim mon As String = bDate.Month.ToString
         Dim years As String = bDate.Year.ToString
 
-        Dim sqlLFL As String = "from mtd m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id " & _
-"where m.month_time between @bDate and @eDate and totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
+        Dim sqlTbl As String = IIf(rate = "", "mtd", "v_mtd('" + rate + "')")
+
+        Dim sqlCol As String = "SELECT COUNT(DISTINCT m.costcenter_id) as cnum, " & _
+            "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
+            "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss, "
+
+        Dim sqlCount_closed As String = "select  count(distinct m.costcenter_id) as cnum " & _
+                "from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+                "where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
+                "and month_time between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) and RETAIL_TESPIncome <> 0 " & _
+                "and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)"
+
+        Dim sqlCol_closed As String = "SELECT (" + sqlCount_closed + ") as cnum, " & _
+          "ISNULL(SUM(costcenter_total_area),0) as Sumtotalarea,ISNULL(SUM(costcenter_sale_area),0) as Sumsalearea, " & _
+          "case when SUM(costcenter_sale_area) = 0 then 0 else ISNULL(SUM(TotalRevenue)/SUM(costcenter_sale_area),0)  end as productivity,ISNULL(SUM(lastRevenue),0) as lastRevenue,ISNULL(SUM(lastLoss),0) as lastLoss,"
+
+        Dim sqlLFL As String = "from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
+"where m.month_time between @bDate and @eDate and m.totalRevenue <> 0 and c.costcenter_opendt <=  dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) )  " & _
 "and c.costcenter_opendt < @openyear and not ( c.costcenter_opendt > dateadd(year,-1, @eDate) and c.costcenter_opendt <= dateadd(year,-1,dateadd(month,1,dateadd(day,-1, @eDate))) ) " & _
 "and m.costcenter_id not in (" + getTempCloseLFL() + ") "
 
-        Dim sql As String =
-"SELECT m.costcenter_id,store_name = 'LFL' " & _
+        'LFL Growth only 'N/A'
+        Dim sql As String = "SELECT *,'N/A' as lfl_growth,'N/A' as yoy_growth,'N/A' as lfl_loss_growth,'N/A' as yoy_loss_growth from ( " & _
+"" + sqlCol + "" & _
+"" + clsBts.columnModelSum() + "" & _
+",costcenter_store=5,store_id = 5,store_name = 'LFL' " & _
 "" + sqlLFL + "" & _
 "union " & _
-"SELECT m.costcenter_id,store_name = 'Non LFL' " & _
-"from mtd m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id  " & _
+"" + sqlCol + "" & _
+"" + clsBts.columnModelSum() + "" & _
+",costcenter_store=4,store_id = 4,store_name = 'Non LFL' " & _
+"from " + sqlTbl + " m left JOIN costcenter c ON m.costcenter_id=c.costcenter_id  " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and month_time between @bDate and @eDate " & _
 "and ( c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(month,1,dateadd(day,-1, @bDate)) ) " & _
 "and c.costcenter_opendt < @openyear " & _
 "and c.costcenter_id not in( select c.costcenter_id " + sqlLFL + ") " & _
 "union " & _
-"SELECT m.costcenter_id,store_name = 'Closed' " & _
-"from  mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
-"where c.costcenter_store in (select store_id from store where store_other = 'N') " & _
-"and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and c.costcenter_blockdt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
-"and year(month_time) = year(costcenter_blockdt) and month(month_time) = month(costcenter_blockdt) " & _
+"" + sqlCol_closed + "" & _
+"" + clsBts.columnModelSum() + "" & _
+",costcenter_store=3,store_id = 3,store_name = 'Closed' " & _
+"from (" & _
+"	select m.*,costcenter_sale_area,costcenter_total_area" & _
+"	from  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id  " & _
+"	where c.costcenter_store in (select store_id from store where store_other = 'N')" & _
+"	and month_time between @bDate and dateadd(day,-1,dateadd(month,1, @eDate))" & _
+"	and costcenter_blockdt is not null and costcenter_blockdt < dateadd(month,1, @eDate)" & _
+")m1 right join (" & _
+"	SELECT  month_time, c.costcenter_id, ISNULL(RETAIL_TESPIncome, 0) AS lastRevenue, ISNULL(StoreTradingProfit__Loss, 0) AS lastLoss" & _
+"    FROM  " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id" & _
+"    WHERE      (month_time = DATEADD(year, - 1, @bDate))" & _
+"    and costcenter_blockdt is not null and costcenter_blockdt <  dateadd(month,1, @eDate)" & _
+")m2 on m1.costcenter_id = m2.costcenter_id " & _
 "union " & _
-"SELECT m.costcenter_id,store_name = 'New Store' " & _
-"from mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+"" + sqlCol + "" & _
+"" + clsBts.columnModelSum() + "" & _
+",costcenter_store=2,store_id = 2,store_name = 'New Store' " & _
+"from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'N') " & _
 "and month_time between @bDate and @eDate " & _
 "and c.costcenter_opendt between @openyear and dateadd(day,-1,dateadd(month,1, @eDate)) " & _
 "union " & _
-"SELECT m.costcenter_id,store_name = 'Other Business' " & _
-"from mtd m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+"" + sqlCol + "" & _
+"" + clsBts.columnModelSum() + "" & _
+",costcenter_store=1,store_id = 1,store_name = 'Other Business' " & _
+"from " + sqlTbl + " m inner join costcenter c on m.costcenter_id = c.costcenter_id " & _
+"left join (select costcenter_id,ISNULL(RETAIL_TESPIncome,0) as lastRevenue,ISNULL(StoreTradingProfit__Loss,0) as lastLoss from " + sqlTbl + " where month_time = dateadd(year,-1,@bDate) )m2 ON m2.costcenter_id=c.costcenter_id " & _
 "where (c.costcenter_blockdt is null or c.costcenter_blockdt > dateadd(day,-1,dateadd(month,1, @eDate)) ) " & _
 "and c.costcenter_store in (select store_id from store where store_other = 'Y') " & _
-"and m.month_time = @bDate "
+"and m.month_time = @bDate " & _
+")LFL order by store_id desc"
 
+
+        sql = sql.Replace("SUM(TotalRevenue)", "SUM(RETAIL_TESPIncome)")
         Dim con As New SqlConnection(strcon)
         Dim cmd As New SqlCommand(sql, con)
 
@@ -786,8 +979,84 @@ Public Class clsLFL
         Try
             Dim da As New SqlDataAdapter(cmd)
             Dim dt As New DataTable
+            Dim dtlflG As New DataTable
+            Dim dtPreMtd As New DataTable
+            Dim ds As New DataSet
             da.Fill(dt)
-            Return dt
+
+            If dt.Rows.Count > 0 Then
+                'Cal Growth YOY,Default = N/A
+                For Each dr As DataRow In dt.Rows
+                    If dr("store_name") = "LFL" Or dr("store_name") = "Non LFL" Or dr("store_name") = "Other Business" Then
+                        dr("yoy_growth") = ClsManage.convert2PercenLFLGrowth((dr("SumTotalRevenue") / dr("lastRevenue")) - 1)
+                        dr("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth((dr("SumStoreTradingProfit__Loss") / dr("lastLoss")) - 1)
+                    End If
+                Next
+
+                'Add row for total 
+                Dim drTotal As DataRow = dt.NewRow
+                Dim colName As String = ""
+                For i As Integer = 0 To dt.Columns.Count - 1
+                    colName = drTotal.Table.Columns(i).ColumnName
+                    If colName.Contains("Sum") Then
+                        drTotal(i) = IIf(dt.Compute("Sum(" + colName + ")", "").ToString = "", 0, dt.Compute("Sum(" + colName + ")", ""))
+                    End If
+                Next
+
+                If dt.Compute("Sum(sumsalearea)", "").ToString = "" Then
+                    drTotal("productivity") = 0
+                Else
+                    drTotal("productivity") = dt.Compute("Sum(SumTotalRevenue)", "") / dt.Compute("Sum(sumsalearea)", "")
+                End If
+                Dim filter As String = "store_id<>2 and store_id<>3"
+                Dim revFilter As Double = dt.Compute("Sum(SumTotalRevenue)", filter)
+                Dim lastRevFilter As Double = dt.Compute("Sum(lastRevenue)", filter)
+                Dim lossFilter As Double = dt.Compute("Sum(SumStoreTradingProfit__Loss)", filter)
+                Dim lastLossFilter As Double = dt.Compute("Sum(lastLoss)", filter)
+
+                drTotal("lfl_growth") = ClsManage.msgLFLNone
+                drTotal("yoy_growth") = ClsManage.convert2PercenLFLGrowth((revFilter / lastRevFilter) - 1)
+                drTotal("lfl_loss_growth") = ClsManage.msgLFLNone
+                drTotal("yoy_loss_growth") = ClsManage.convert2PercenLFLGrowth((lossFilter / lastLossFilter) - 1)
+
+                drTotal("cnum") = Integer.Parse(IIf(dt.Compute("Sum(cnum)", "store_id <> 1").ToString = "", 0, dt.Compute("Sum(cnum)", "store_id <> 1"))) 'excude Other Business
+                drTotal("store_id") = 0
+                drTotal("costcenter_store") = 0
+                drTotal("store_name") = clsBts.reportPart.Total.ToString
+                dt.Rows.Add(drTotal)
+
+
+
+                Dim dtTotal As New DataTable
+                dtTotal = dt.Clone
+                dtTotal.ImportRow(dt.Select("costcenter_store = 0")(0))
+                dt.Rows(dt.Rows.Count - 1).Delete()
+                dt.AcceptChanges()
+
+                ds.Tables.Add(dt)
+                ds.Tables(0).TableName = clsBts.reportPart.Item.ToString
+
+                'Add Total YOY
+                Dim drTotalYoy As Data.DataRow
+                drTotalYoy = clsBts.getYoyMtdTotal(years, mon, "", rate).Rows(2)
+
+                Dim drNewTotalYoy As DataRow = dtTotal.NewRow
+                For i As Integer = 0 To drTotalYoy.Table.Columns.Count - 1
+                    If drTotalYoy.Table.Columns(i).ColumnName.Contains("Sum") Then
+                        drNewTotalYoy(drTotalYoy.Table.Columns(i).ColumnName) = 0 'drTotalYoy(drTotalYoy.Table.Columns(i).ColumnName)
+                    End If
+                Next
+                drNewTotalYoy("cnum") = 0
+                drNewTotalYoy("store_id") = 0
+                drNewTotalYoy("costcenter_store") = 0
+                drNewTotalYoy("store_name") = "TotalYoy"
+                dtTotal.Rows.Add(drNewTotalYoy)
+
+                ds.Tables.Add(dtTotal)
+                ds.Tables(1).TableName = clsBts.reportPart.Total.ToString
+
+            End If
+            Return ds
 
         Catch ex As Exception
             Throw ex
