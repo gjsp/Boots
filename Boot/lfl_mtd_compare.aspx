@@ -91,7 +91,7 @@
                 <asp:ListItem Text="LFL" Value="LFL"></asp:ListItem>
                 <asp:ListItem Text="Non LFL" Value="NonLFL"></asp:ListItem>
                 <asp:ListItem Text="Closed" Value="Closed"></asp:ListItem>
-                <asp:ListItem Text="Other Busincess" Value="OtherBusincess"></asp:ListItem>
+                <asp:ListItem Text="Other Business" Value="OtherBusiness"></asp:ListItem>
             </asp:DropDownList>
         </div>
         <div style="float: left; margin-right: .5cm">

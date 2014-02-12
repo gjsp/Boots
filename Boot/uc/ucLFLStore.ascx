@@ -1,4 +1,4 @@
-﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="ucLFL.ascx.vb" Inherits="uc_ucLFL" %>
+﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="ucLFLStore.ascx.vb" Inherits="ucLFLStore" %>
 
 <link href="../style.css" rel="stylesheet" type="text/css" />
 <script src="../js/function.js" type="text/javascript"></script>
@@ -88,10 +88,10 @@
     <div id="temp_body" runat="server">
         <table cellspacing='0' cellpadding='0' class='tb_block' style="max-width:800px">
             <tr>
-               <td style="vertical-align:top">
+                <td valign="top">
                         <asp:Label ID="lblTopicTable" runat="server"></asp:Label>
                 </td>
-                <td style="vertical-align:top">
+                <td valign="top">
                     <asp:DataList ID="dlTotal" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
                         CellPadding="0" BorderStyle="None">
                         <ItemTemplate>
@@ -100,7 +100,7 @@
                     </asp:DataList>
                 </td>
                 <td>
-                    <div id="div_item" runat="server" class="scroll3">
+                    <div id="div_item" runat="server" class="scroll">
                         <asp:DataList ID="dlItem" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
                             CellPadding="0" BorderStyle="None">
                             <ItemTemplate>

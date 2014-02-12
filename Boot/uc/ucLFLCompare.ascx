@@ -1,4 +1,4 @@
-﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="ucLFL.ascx.vb" Inherits="uc_ucLFL" %>
+﻿<%@ Control Language="VB" AutoEventWireup="false" CodeFile="ucLFLCompare.ascx.vb" Inherits="ucLFLCompare" %>
 
 <link href="../style.css" rel="stylesheet" type="text/css" />
 <script src="../js/function.js" type="text/javascript"></script>
@@ -27,9 +27,9 @@
         for (y = 1; y <= r; y++) {
             var x = $get('<%=hdfIndex.clientId %>').value;
             if ($get(z + y).style.display == "none") {
-                $get(z + y).style.display = "block";
+                $get(z + y).style.display = "";
                 for (i = 1; i <= x; i++) {
-                    $get(z + y + "c" + i).style.display = "block";
+                    $get(z + y + "c" + i).style.display = "";
                 }
             } else {
                 $get(z + y).style.display = "none";
@@ -82,24 +82,16 @@
 </script>
 <asp:Panel ID="pnMain" runat="server" Visible = "false">
     <br />
-    <asp:LinkButton ID="linkExcel" runat="server" Style="color: #37a700;">Export To Excel</asp:LinkButton>
+    <asp:LinkButton ID="linkExcel" runat="server" Style="color: #37a700">Export To Excel</asp:LinkButton>
     <br />
     <br />
     <div id="temp_body" runat="server">
         <table cellspacing='0' cellpadding='0' class='tb_block' style="max-width:800px">
             <tr>
-               <td style="vertical-align:top">
+                <td style="vertical-align:top">
                         <asp:Label ID="lblTopicTable" runat="server"></asp:Label>
                 </td>
                 <td style="vertical-align:top">
-                    <asp:DataList ID="dlTotal" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
-                        CellPadding="0" BorderStyle="None">
-                        <ItemTemplate>
-                            <asp:Label ID="lbl" runat="server"></asp:Label>
-                        </ItemTemplate>
-                    </asp:DataList>
-                </td>
-                <td>
                     <div id="div_item" runat="server" class="scroll3">
                         <asp:DataList ID="dlItem" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
                             CellPadding="0" BorderStyle="None">
@@ -108,6 +100,14 @@
                             </ItemTemplate>
                         </asp:DataList>
                     </div>
+                </td>
+                <td style="vertical-align:top">
+                    <asp:DataList ID="dlTotal" runat="server" RepeatDirection="Horizontal" BorderWidth="0px"
+                        CellPadding="0" BorderStyle="None">
+                        <ItemTemplate>
+                            <asp:Label ID="lbl" runat="server"></asp:Label>
+                        </ItemTemplate>
+                    </asp:DataList>
                 </td>
             </tr>
         </table>

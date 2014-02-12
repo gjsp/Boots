@@ -782,6 +782,483 @@ Public Class clsHtml
     End Function
 #End Region
 
+#Region "LFL Compare"
+
+    Public Shared Function htmlLFLCompareTopic() As String
+        Dim sb As New StringBuilder
+        sb.Append("<table cellspacing='0' cellpadding='0' border='0' class='tball2'>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg0'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>{0}</div></td></tr>")
+
+        sb.Append("<tr style='font-weight:bold;height:31px' class='rbg1'><td align='left'><div style='width:250px;padding-left:5px;'>&nbsp;{1}&nbsp;</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>Number of Stores</div></td></tr>")
+
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>Total Gross Space (SQM)</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>Total Selling Space (SQM)</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>Productivity/SQM</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='kbg3'><td align='left'><div style='width:250px;padding-left:5px;'>&nbsp;</div></td></tr>")
+
+        'sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>% Revenue Growth-YOY</div></td></tr>")
+        'sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>% Revenue Growth-LFL</div></td></tr>")
+        'sb.Append("<tr style='font-weight:bold;' class='kbg3'><td align='left'><div style='width:250px;padding-left:5px;'>&nbsp;</div></td></tr>")
+
+        sb.Append("<tr style='font-weight:bold;' class='rbg1'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Total Revenue <span id='spaa' class='ppk' onclick=""minitb('aa');"">+</span></div></td></tr>")
+        sb.Append("<tr id='aa1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Sale Revenue</div></td></tr>")
+        sb.Append("<tr id='aa2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Revenue</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;' class='pptk'>Cost of Good Sold</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Gross Retails Profit</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;' class='pptk'>Margin Adjustments <span id='spb' class='ppk' onclick=""minitb('b');"">+</span></div></td></tr>")
+        sb.Append("<tr id='b1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Shipping</div></td></tr>")
+        sb.Append("<tr id='b2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Stock Loss and Obsolescence</div></td></tr>")
+        sb.Append("<tr id='b3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - stock check (Actual)</div></td></tr>")
+        sb.Append("<tr id='b4'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - damaged and obsolete stock (Actual)</div></td></tr>")
+        sb.Append("<tr id='b5'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Stock Loss  (Provision)</div></td></tr>")
+        sb.Append("<tr id='b6'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Stock Obsolescence (Provision)</div></td></tr>")
+        sb.Append("<tr id='b7'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - GWP</div></td></tr>")
+        sb.Append("<tr id='b8'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - GWPs - Corporate</div></td></tr>")
+        sb.Append("<tr id='b9'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - GWPs - Transferred</div></td></tr>")
+        sb.Append("<tr id='b10'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Selling Costs</div></td></tr>")
+        sb.Append("<tr id='b11'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Credit cards commission</div></td></tr>")
+        sb.Append("<tr id='b12'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Labelling Material</div></td></tr>")
+        sb.Append("<tr id='b13'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Income - COSH Funding</div></td></tr>")
+        sb.Append("<tr id='b14'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Income Supplier</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg1'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Adjusted Gross Retails Profit</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg4'><td align='left' class='kbg2';'><div style='width:200px;padding-left:5px;' class='pptk'>Supply Chain Costs</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Total Store Expenses</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg3'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Store Labour Costs <span id='spe' class='ppk' onclick=""minitb('e');"">+</span></div></td></tr>")
+        sb.Append("<tr id='e1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Gross Pay</div></td></tr>")
+        sb.Append("<tr id='e2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Temporary Staff Costs</div></td></tr>")
+        sb.Append("<tr id='e3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Allowance</div></td></tr>")
+        sb.Append("<tr id='e4'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Overtime</div></td></tr>")
+        sb.Append("<tr id='e5'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - License fee</div></td></tr>")
+        sb.Append("<tr id='e6'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Bonuses/Incentives</div></td></tr>")
+        sb.Append("<tr id='e7'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Boots Brand ncentives</div></td></tr>")
+        sb.Append("<tr id='e8'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Suppliers Incentive</div></td></tr>")
+        sb.Append("<tr id='e9'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Provident Fund</div></td></tr>")
+        sb.Append("<tr id='e10'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Pension Costs</div></td></tr>")
+        sb.Append("<tr id='e11'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Social Security Fund</div></td></tr>")
+        sb.Append("<tr id='e12'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Uniforms</div></td></tr>")
+        sb.Append("<tr id='e13'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Employee Welfare</div></td></tr>")
+        sb.Append("<tr id='e14'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Benefits Employee</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;' class='pptk'>Store Property Costs <span id='spf' class='ppk' onclick=""minitb('f');"">+</span></div></td></tr>")
+        sb.Append("<tr id='f1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Property Rental</div></td></tr>")
+        sb.Append("<tr id='f2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Property Services</div></td></tr>")
+        sb.Append("<tr id='f3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Property Facility</div></td></tr>")
+        sb.Append("<tr id='f4'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Property taxes</div></td></tr>")
+        sb.Append("<tr id='f5'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Facial taxes</div></td></tr>")
+        sb.Append("<tr id='f6'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Property Insurance</div></td></tr>")
+        sb.Append("<tr id='f7'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Signboard</div></td></tr>")
+        sb.Append("<tr id='f8'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Discount - Rent/Services/Facility</div></td></tr>")
+        sb.Append("<tr id='f9'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - GP Commission</div></td></tr>")
+        sb.Append("<tr id='f10'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Amortization of Lease Right</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;' class='pptk'>Depreciation <span id='spg' class='ppk' onclick=""minitb('g');"">+</span></div></td></tr>")
+        sb.Append("<tr id='g1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Depreciation of Short Lease Building</div></td></tr>")
+        sb.Append("<tr id='g2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Depreciation of Computer Hardware</div></td></tr>")
+        sb.Append("<tr id='g3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Depreciation of Fixtures & Fittings</div></td></tr>")
+        sb.Append("<tr id='g4'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Depreciation of Computer Software</div></td></tr>")
+        sb.Append("<tr id='g5'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Depreciation of Office Equipment</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' class='rbg3'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Other Store Costs <span id='sph' class='ppk' onclick=""minitb('h');"">+</span></div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h1'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Service Charges and Other Fees</div></td></tr>")
+
+        sb.Append("<tr id='h2'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Bank Charges</div></td></tr>")
+        sb.Append("<tr id='h3'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Cash Collection Charge</div></td></tr>")
+        sb.Append("<tr id='h4'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Cleaning</div></td></tr>")
+        sb.Append("<tr id='h5'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Security Guards</div></td></tr>")
+        sb.Append("<tr id='h6'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Carriage</div></td></tr>")
+        sb.Append("<tr id='h7'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Licence Fees</div></td></tr>")
+        sb.Append("<tr id='h8'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Services Charge</div></td></tr>")
+        sb.Append("<tr id='h9'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Fees</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h10'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Utilities</div></td></tr>")
+
+        sb.Append("<tr id='h11'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Water</div></td></tr>")
+        sb.Append("<tr id='h12'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Gas/Electric</div></td></tr>")
+        sb.Append("<tr id='h13'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Air Cond. - Addition</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h14'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Repair and Maintenance</div></td></tr>")
+
+        sb.Append("<tr id='h15'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - R&M Other - Fix</div></td></tr>")
+        sb.Append("<tr id='h16'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - R&M Other - Unplan</div></td></tr>")
+        sb.Append("<tr id='h17'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - R&M Computer - Fix</div></td></tr>")
+        sb.Append("<tr id='h18'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - R&M Computer - Unplan</div></td></tr>")
+        'new line
+        sb.Append("<tr id='h51'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - SW Maintenance</div></td></tr>")
+        sb.Append("<tr id='h52'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - HW Maintenance</div></td></tr>")
+
+        sb.Append("<tr style='font-weight:bold' id='h19'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Professional Fee</div></td></tr>")
+
+        sb.Append("<tr id='h20'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Marketing Research</div></td></tr>")
+        sb.Append("<tr id='h21'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Fee</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h22'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Equipment, Materail and Supplies</div></td></tr>")
+
+        sb.Append("<tr id='h23'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Printing and Stationery</div></td></tr>")
+        sb.Append("<tr id='h24'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Supplies Expenses</div></td></tr>")
+        sb.Append("<tr id='h25'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Equipment</div></td></tr>")
+        sb.Append("<tr id='h26'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Shopfitting</div></td></tr>")
+        sb.Append("<tr id='h27'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Packaging and Other Material</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h28'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Business Travel Expenses</div></td></tr>")
+
+        sb.Append("<tr id='h29'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Car Parking and Others</div></td></tr>")
+        sb.Append("<tr id='h30'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Travel</div></td></tr>")
+        sb.Append("<tr id='h31'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Accomodation</div></td></tr>")
+        sb.Append("<tr id='h32'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Meal and Entertainment</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h33'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Insurance</div></td></tr>")
+
+        sb.Append("<tr id='h34'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - All Risk Insurance</div></td></tr>")
+        sb.Append("<tr id='h35'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Health and Life Insurance</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h36'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Penalty and Taxation</div></td></tr>")
+
+        sb.Append("<tr id='h37'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Taxation</div></td></tr>")
+        sb.Append("<tr id='h38'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Penalty</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h39'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Related Staff Cost</div></td></tr>")
+
+        sb.Append("<tr id='h40'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Staff Conference and Training</div></td></tr>")
+        sb.Append("<tr id='h41'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Training</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h42'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Communication</div></td></tr>")
+
+        sb.Append("<tr id='h43'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Telephone Calls/Faxes</div></td></tr>")
+        sb.Append("<tr id='h44'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Postage and Courier</div></td></tr>")
+        'new line
+        sb.Append("<tr id='h53'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - IT Telecommunications</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold' id='h45'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Other Expenses</div></td></tr>")
+
+        sb.Append("<tr id='h46'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Sample/Tester</div></td></tr>")
+        sb.Append("<tr id='h47'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Preopening Costs</div></td></tr>")
+        sb.Append("<tr id='h48'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Loss on Claim</div></td></tr>")
+        sb.Append("<tr id='h49'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Cash Overtage/Shortage from sales</div></td></tr>")
+        sb.Append("<tr id='h50'><td align='left' class='kbg2'><div style='width:200px;padding-left:5px;'> - Miscellenous and Other</div></td></tr>")
+        sb.Append("<tr style='font-weight:bold;' class='rbg1'><td align='left'><div style='width:200px;padding-left:5px;' class='pptk'>Store Trading Profit / (Loss)</div></td></tr>")
+        'sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>% Store Trading Profit Growth-YOY</div></td></tr>")
+        'sb.Append("<tr style='font-weight:bold;' class='rbg2'><td align='left'><div style='width:250px;padding-left:5px;' class='pptk'>% Store Trading Profit Growth-LFL</div></td></tr>")
+        sb.Append("</table>")
+
+        Return sb.ToString
+    End Function
+
+    Public Shared Function htmlLFLCompareItem(part As tablePart, Optional hasBorder As Boolean = False) As String
+
+        Select Case part
+            Case 1
+                Dim tbHead As New StringBuilder
+
+                'for border (ตีกรอบ)
+                Dim tblClass As String = "tball2"
+                If hasBorder Then
+                    tblClass = "tbTotal"
+                End If
+                'tbHead.Append("<TABLE cellspacing='0' cellpadding='0' class='tball2'>")
+                tbHead.Append(String.Format("<TABLE cellspacing='0' cellpadding='0' class='{0}'>", tblClass))
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='center' colspan='2'><strong>{0}</strong></TD></TR>")
+
+                'assing width this row
+                tbHead.Append("<TR style='font-weight:bold;height:30px' class='rbg1'><TD align='center'><div style='width:90px'><strong>{1}</strong></div></TD><TD align='center'><div style='width:60px;'><strong>% Sale</strong></div></TD></TR>")
+
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center' ><strong>{2}</strong></TD><TD align='center'><div style='width:60px;'><strong></strong></div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center' class='rbg2'>{3}</TD><TD align='center' class='rbg2'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center'>{4}</TD><TD align='center'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center'>{5}</TD><TD align='center'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                tbHead.Append("<TR><TD></TD><TD>&nbsp;</TD></TR>")
+                'tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{6}</TD><TD>&nbsp;</TD></TR>")
+                'tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{7}</TD><TD align='center'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                'tbHead.Append("<TR><TD></TD><TD>&nbsp;</TD></TR>")
+
+                Return tbHead.ToString
+            Case 2
+                Dim tbBody As New StringBuilder
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'>{3}</TD><TD align='right'><div style='width:60px;'>{4}%</div></TD></TR>")
+                tbBody.Append("<TR id='aa1c{1}'><TD align='right'>{6}</TD><TD align='right'><div style='width:60px;'>{7}%</div></TD></TR>")
+                tbBody.Append("<TR id='aa2c{1}'><TD align='right'>{9}</TD><TD align='right'><div style='width:60px;'>{10}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;'><TD align='right'>{12}</TD><TD align='right'><div style='width:60px;'>{13}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{15}</TD><TD align='right'><div style='width:60px;'>{16}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;'><TD align='right'>{18}</TD><TD align='right'><div style='width:60px;'>{19}%</div></TD></TR>")
+                tbBody.Append("<TR id='b1c{1}'><TD align='right'>{21}</TD><TD align='right'><div style='width:60px;'>{22}%</div></TD></TR>")
+                tbBody.Append("<TR id='b2c{1}'><TD align='right'>{24}</TD><TD align='right'><div style='width:60px;'>{25}%</div></TD></TR>")
+                tbBody.Append("<TR id='b3c{1}'><TD align='right'>{27}</TD><TD align='right'><div style='width:60px;'>{28}%</div></TD></TR>")
+                tbBody.Append("<TR id='b4c{1}'><TD align='right'>{30}</TD><TD align='right'><div style='width:60px;'>{31}%</div></TD></TR>")
+                tbBody.Append("<TR id='b5c{1}'><TD align='right'>{33}</TD><TD align='right'><div style='width:60px;'>{34}%</div></TD></TR>")
+                tbBody.Append("<TR id='b6c{1}'><TD align='right'>{36}</TD><TD align='right'><div style='width:60px;'>{37}%</div></TD></TR>")
+                tbBody.Append("<TR id='b7c{1}'><TD align='right'>{39}</TD><TD align='right'><div style='width:60px;'>{40}%</div></TD></TR>")
+                tbBody.Append("<TR id='b8c{1}'><TD align='right'>{42}</TD><TD align='right'><div style='width:60px;'>{43}%</div></TD></TR>")
+                tbBody.Append("<TR id='b9c{1}'><TD align='right'>{45}</TD><TD align='right'><div style='width:60px;'>{46}%</div></TD></TR>")
+                tbBody.Append("<TR id='b10c{1}'><TD align='right'>{48}</TD><TD align='right'><div style='width:60px;'>{49}%</div></TD></TR>")
+                tbBody.Append("<TR id='b11c{1}'><TD align='right'>{51}</TD><TD align='right'><div style='width:60px;'>{52}%</div></TD></TR>")
+                tbBody.Append("<TR id='b12c{1}'><TD align='right'>{54}</TD><TD align='right'><div style='width:60px;'>{55}%</div></TD></TR>")
+                tbBody.Append("<TR id='b13c{1}'><TD align='right'>{57}</TD><TD align='right'><div style='width:60px;'>{58}%</div></TD></TR>")
+                tbBody.Append("<TR id='b14c{1}'><TD align='right'>{60}</TD><TD align='right'><div style='width:60px;'>{61}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'>{63}</TD><TD align='right'><div style='width:60px;'>{64}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg4'><TD align='right'>{66}</TD><TD align='right'><div style='width:60px;'>{67}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{69}</TD><TD align='right'><div style='width:60px;'>{70}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'>{72}</TD><TD align='right'><div style='width:60px;'>{73}%</div></TD></TR>")
+                tbBody.Append("<TR id='e1c{1}'><TD align='right'>{75}</TD><TD align='right'><div style='width:60px;'>{76}%</div></TD></TR>")
+                tbBody.Append("<TR id='e2c{1}'><TD align='right'>{78}</TD><TD align='right'><div style='width:60px;'>{79}%</div></TD></TR>")
+                tbBody.Append("<TR id='e3c{1}'><TD align='right'>{81}</TD><TD align='right'><div style='width:60px;'>{82}%</div></TD></TR>")
+                tbBody.Append("<TR id='e4c{1}'><TD align='right'>{84}</TD><TD align='right'><div style='width:60px;'>{85}%</div></TD></TR>")
+                tbBody.Append("<TR id='e5c{1}'><TD align='right'>{87}</TD><TD align='right'><div style='width:60px;'>{88}%</div></TD></TR>")
+                tbBody.Append("<TR id='e6c{1}'><TD align='right'>{90}</TD><TD align='right'><div style='width:60px;'>{91}%</div></TD></TR>")
+                tbBody.Append("<TR id='e7c{1}'><TD align='right'>{93}</TD><TD align='right'><div style='width:60px;'>{94}%</div></TD></TR>")
+                tbBody.Append("<TR id='e8c{1}'><TD align='right'>{96}</TD><TD align='right'><div style='width:60px;'>{97}%</div></TD></TR>")
+                tbBody.Append("<TR id='e9c{1}'><TD align='right'>{99}</TD><TD align='right'><div style='width:60px;'>{100}%</div></TD></TR>")
+                tbBody.Append("<TR id='e10c{1}'><TD align='right'>{102}</TD><TD align='right'><div style='width:60px;'>{103}%</div></TD></TR>")
+                tbBody.Append("<TR id='e11c{1}'><TD align='right'>{105}</TD><TD align='right'><div style='width:60px;'>{106}%</div></TD></TR>")
+                tbBody.Append("<TR id='e12c{1}'><TD align='right'>{108}</TD><TD align='right'><div style='width:60px;'>{109}%</div></TD></TR>")
+                tbBody.Append("<TR id='e13c{1}'><TD align='right'>{111}</TD><TD align='right'><div style='width:60px;'>{112}%</div></TD></TR>")
+                tbBody.Append("<TR id='e14c{1}'><TD align='right'>{114}</TD><TD align='right'><div style='width:60px;'>{115}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'>{117}</TD><TD align='right'><div style='width:60px;'>{118}%</div></TD></TR>")
+                tbBody.Append("<TR id='f1c{1}'><TD align='right'>{120}</TD><TD align='right'><div style='width:60px;'>{121}%</div></TD></TR>")
+                tbBody.Append("<TR id='f2c{1}'><TD align='right'>{123}</TD><TD align='right'><div style='width:60px;'>{124}%</div></TD></TR>")
+                tbBody.Append("<TR id='f3c{1}'><TD align='right'>{126}</TD><TD align='right'><div style='width:60px;'>{127}%</div></TD></TR>")
+                tbBody.Append("<TR id='f4c{1}'><TD align='right'>{129}</TD><TD align='right'><div style='width:60px;'>{130}%</div></TD></TR>")
+                tbBody.Append("<TR id='f5c{1}'><TD align='right'>{132}</TD><TD align='right'><div style='width:60px;'>{133}%</div></TD></TR>")
+                tbBody.Append("<TR id='f6c{1}'><TD align='right'>{135}</TD><TD align='right'><div style='width:60px;'>{136}%</div></TD></TR>")
+                tbBody.Append("<TR id='f7c{1}'><TD align='right'>{138}</TD><TD align='right'><div style='width:60px;'>{139}%</div></TD></TR>")
+                tbBody.Append("<TR id='f8c{1}'><TD align='right'>{141}</TD><TD align='right'><div style='width:60px;'>{142}%</div></TD></TR>")
+                tbBody.Append("<TR id='f9c{1}'><TD align='right'>{144}</TD><TD align='right'><div style='width:60px;'>{145}%</div></TD></TR>")
+                tbBody.Append("<TR id='f10c{1}'><TD align='right'>{147}</TD><TD align='right'><div style='width:60px;'>{148}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'>{150}</TD><TD align='right'><div style='width:60px;'>{151}%</div></TD></TR>")
+                tbBody.Append("<TR id='g1c{1}'><TD align='right'>{153}</TD><TD align='right'><div style='width:60px;'>{154}%</div></TD></TR>")
+                tbBody.Append("<TR id='g2c{1}'><TD align='right'>{156}</TD><TD align='right'><div style='width:60px;'>{157}%</div></TD></TR>")
+                tbBody.Append("<TR id='g3c{1}'><TD align='right'>{159}</TD><TD align='right'><div style='width:60px;'>{160}%</div></TD></TR>")
+                tbBody.Append("<TR id='g4c{1}'><TD align='right'>{162}</TD><TD align='right'><div style='width:60px;'>{163}%</div></TD></TR>")
+                tbBody.Append("<TR id='g5c{1}'><TD align='right'>{165}</TD><TD align='right'><div style='width:60px;'>{166}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'>{168}</TD><TD align='right'><div style='width:60px;'>{169}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h1c{1}'><TD align='right'>{171}</TD><TD align='right'><div style='width:60px;'>{172}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h2c{1}'><TD align='right'>{174}</TD><TD align='right'><div style='width:60px;'>{175}%</div></TD></TR>")
+                tbBody.Append("<TR id='h3c{1}'><TD align='right'>{177}</TD><TD align='right'><div style='width:60px;'>{178}%</div></TD></TR>")
+                tbBody.Append("<TR id='h4c{1}'><TD align='right'>{180}</TD><TD align='right'><div style='width:60px;'>{181}%</div></TD></TR>")
+                tbBody.Append("<TR id='h5c{1}'><TD align='right'>{183}</TD><TD align='right'><div style='width:60px;'>{184}%</div></TD></TR>")
+                tbBody.Append("<TR id='h6c{1}'><TD align='right'>{186}</TD><TD align='right'><div style='width:60px;'>{187}%</div></TD></TR>")
+                tbBody.Append("<TR id='h7c{1}'><TD align='right'>{189}</TD><TD align='right'><div style='width:60px;'>{190}%</div></TD></TR>")
+                tbBody.Append("<TR id='h8c{1}'><TD align='right'>{192}</TD><TD align='right'><div style='width:60px;'>{193}%</div></TD></TR>")
+                tbBody.Append("<TR id='h9c{1}'><TD align='right'>{195}</TD><TD align='right'><div style='width:60px;'>{196}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h10c{1}'><TD align='right'>{198}</TD><TD align='right'><div style='width:60px;'>{199}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h11c{1}'><TD align='right'>{201}</TD><TD align='right'><div style='width:60px;'>{202}%</div></TD></TR>")
+                tbBody.Append("<TR id='h12c{1}'><TD align='right'>{204}</TD><TD align='right'><div style='width:60px;'>{205}%</div></TD></TR>")
+                tbBody.Append("<TR id='h13c{1}'><TD align='right'>{207}</TD><TD align='right'><div style='width:60px;'>{208}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h14c{1}'><TD align='right'>{210}</TD><TD align='right'><div style='width:60px;'>{211}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h15c{1}'><TD align='right'>{213}</TD><TD align='right'><div style='width:60px;'>{214}%</div></TD></TR>")
+                tbBody.Append("<TR id='h16c{1}'><TD align='right'>{216}</TD><TD align='right'><div style='width:60px;'>{217}%</div></TD></TR>")
+                tbBody.Append("<TR id='h17c{1}'><TD align='right'>{219}</TD><TD align='right'><div style='width:60px;'>{220}%</div></TD></TR>")
+                tbBody.Append("<TR id='h18c{1}'><TD align='right'>{222}</TD><TD align='right'><div style='width:60px;'>{223}%</div></TD></TR>")
+                'new line
+                tbBody.Append("<TR id='h51c{1}'><TD align='right'>{324}</TD><TD align='right'><div style='width:60px;'>{325}%</div></TD></TR>")
+                tbBody.Append("<TR id='h52c{1}'><TD align='right'>{327}</TD><TD align='right'><div style='width:60px;'>{328}%</div></TD></TR>")
+
+                tbBody.Append("<TR style='font-weight:bold' id='h19c{1}'><TD align='right'>{225}</TD><TD align='right'><div style='width:60px;'>{226}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h20c{1}'><TD align='right'>{228}</TD><TD align='right'><div style='width:60px;'>{229}%</div></TD></TR>")
+                tbBody.Append("<TR id='h21c{1}'><TD align='right'>{231}</TD><TD align='right'><div style='width:60px;'>{232}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h22c{1}'><TD align='right'>{234}</TD><TD align='right'><div style='width:60px;'>{235}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h23c{1}'><TD align='right'>{237}</TD><TD align='right'><div style='width:60px;'>{238}%</div></TD></TR>")
+                tbBody.Append("<TR id='h24c{1}'><TD align='right'>{240}</TD><TD align='right'><div style='width:60px;'>{241}%</div></TD></TR>")
+                tbBody.Append("<TR id='h25c{1}'><TD align='right'>{243}</TD><TD align='right'><div style='width:60px;'>{244}%</div></TD></TR>")
+                tbBody.Append("<TR id='h26c{1}'><TD align='right'>{246}</TD><TD align='right'><div style='width:60px;'>{247}%</div></TD></TR>")
+                tbBody.Append("<TR id='h27c{1}'><TD align='right'>{249}</TD><TD align='right'><div style='width:60px;'>{250}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h28c{1}'><TD align='right'>{252}</TD><TD align='right'><div style='width:60px;'>{253}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h29c{1}'><TD align='right'>{255}</TD><TD align='right'><div style='width:60px;'>{256}%</div></TD></TR>")
+                tbBody.Append("<TR id='h30c{1}'><TD align='right'>{258}</TD><TD align='right'><div style='width:60px;'>{259}%</div></TD></TR>")
+                tbBody.Append("<TR id='h31c{1}'><TD align='right'>{261}</TD><TD align='right'><div style='width:60px;'>{262}%</div></TD></TR>")
+                tbBody.Append("<TR id='h32c{1}'><TD align='right'>{264}</TD><TD align='right'><div style='width:60px;'>{265}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h33c{1}'><TD align='right'>{267}</TD><TD align='right'><div style='width:60px;'>{268}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h34c{1}'><TD align='right'>{270}</TD><TD align='right'><div style='width:60px;'>{271}%</div></TD></TR>")
+                tbBody.Append("<TR id='h35c{1}'><TD align='right'>{273}</TD><TD align='right'><div style='width:60px;'>{274}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h36c{1}'><TD align='right'>{276}</TD><TD align='right'><div style='width:60px;'>{277}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h37c{1}'><TD align='right'>{279}</TD><TD align='right'><div style='width:60px;'>{280}%</div></TD></TR>")
+                tbBody.Append("<TR id='h38c{1}'><TD align='right'>{282}</TD><TD align='right'><div style='width:60px;'>{283}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h39c{1}'><TD align='right'>{285}</TD><TD align='right'><div style='width:60px;'>{286}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h40c{1}'><TD align='right'>{288}</TD><TD align='right'><div style='width:60px;'>{289}%</div></TD></TR>")
+                tbBody.Append("<TR id='h41c{1}'><TD align='right'>{291}</TD><TD align='right'><div style='width:60px;'>{292}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h42c{1}'><TD align='right'>{294}</TD><TD align='right'><div style='width:60px;'>{295}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h43c{1}'><TD align='right'>{297}</TD><TD align='right'><div style='width:60px;'>{298}%</div></TD></TR>")
+                tbBody.Append("<TR id='h44c{1}'><TD align='right'>{300}</TD><TD align='right'><div style='width:60px;'>{301}%</div></TD></TR>")
+                'new line
+                tbBody.Append("<TR id='h53c{1}'><TD align='right'>{330}</TD><TD align='right'><div style='width:60px;'>{331}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h45c{1}'><TD align='right'>{303}</TD><TD align='right'><div style='width:60px;'>{304}%</div></TD></TR>")
+
+                tbBody.Append("<TR id='h46c{1}'><TD align='right'>{306}</TD><TD align='right'><div style='width:60px;'>{307}%</div></TD></TR>")
+                tbBody.Append("<TR id='h47c{1}'><TD align='right'>{309}</TD><TD align='right'><div style='width:60px;'>{310}%</div></TD></TR>")
+                tbBody.Append("<TR id='h48c{1}'><TD align='right'>{312}</TD><TD align='right'><div style='width:60px;'>{313}%</div></TD></TR>")
+                tbBody.Append("<TR id='h49c{1}'><TD align='right'>{315}</TD><TD align='right'><div style='width:60px;'>{316}%</div></TD></TR>")
+                tbBody.Append("<TR id='h50c{1}'><TD align='right'>{318}</TD><TD align='right'><div style='width:60px;'>{319}%</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'>{321}</TD><TD align='right'><div style='width:60px;'>{322}%</div></TD></TR>")
+
+                Return tbBody.ToString
+            Case 3
+                Dim tbFoot As New StringBuilder
+                'tbFoot.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{0}</TD><TD align='center'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                'tbFoot.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'>{1}</TD><TD align='center'><div style='width:60px;'>&nbsp;</div></TD></TR>")
+                tbFoot.Append("</TABLE>")
+
+                Return tbFoot.ToString
+            Case Else
+                Return ""
+        End Select
+    End Function
+
+    Public Shared Function htmlGrowthLFLCompare(part As tablePart) As String 'replace Column Total
+
+        Select Case part
+            Case 1
+                Dim tbHead As New StringBuilder
+                tbHead.Append("<TABLE cellspacing='0' cellpadding='0' class='tball2'>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='center'><strong>{0}</strong></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;height:30px;' class='rbg1'><TD align='center'><div style='width:70px'><strong>{1}</strong></div></TD> </TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center'><div style='width:70px'><strong>{2}</strong></div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center' class='rbg2'><div style='width:70px;'>{3}</div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center'><div style='width:70px'>{4}</div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='center'><div style='width:70px'>{5}</div></TD></TR>")
+                tbHead.Append("<TR style='font-weight:bold;'><TD align='center'><div style='width:70px'>&nbsp;</div></TD></TR>")
+                'tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{6}</div></TD></TR>")
+                'tbHead.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{7}</div></TD></TR>")
+                'tbHead.Append("<TR style='font-weight:bold;'><TD align='center'><div style='width:70px'>&nbsp;</div></TD></TR>")
+                Return tbHead.ToString
+            Case 2
+                Dim tbBody As New StringBuilder
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'><div style='width:70px'>{3}</div></TD></TR>")
+                tbBody.Append("<TR id='aa1c{1}'><TD align='right'><div style='width:70px'>{6}</div></TD></TR>")
+                tbBody.Append("<TR id='aa2c{1}'><TD align='right'><div style='width:70px'>{9}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;'><TD align='right'><div style='width:70px'>{12}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{15}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;'><TD align='right'><div style='width:70px'>{18}</div></TD></TR>")
+                tbBody.Append("<TR id='b1c{1}'><TD align='right'><div style='width:70px'>{21}</div></TD></TR>")
+                tbBody.Append("<TR id='b2c{1}'><TD align='right'><div style='width:70px'>{24}</div></TD></TR>")
+                tbBody.Append("<TR id='b3c{1}'><TD align='right'><div style='width:70px'>{27}</div></TD></TR>")
+                tbBody.Append("<TR id='b4c{1}'><TD align='right'><div style='width:70px'>{30}</div></TD></TR>")
+                tbBody.Append("<TR id='b5c{1}'><TD align='right'><div style='width:70px'>{33}</div></TD></TR>")
+                tbBody.Append("<TR id='b6c{1}'><TD align='right'><div style='width:70px'>{36}</div></TD></TR>")
+                tbBody.Append("<TR id='b7c{1}'><TD align='right'><div style='width:70px'>{39}</div></TD></TR>")
+                tbBody.Append("<TR id='b8c{1}'><TD align='right'><div style='width:70px'>{42}</div></TD></TR>")
+                tbBody.Append("<TR id='b9c{1}'><TD align='right'><div style='width:70px'>{45}</div></TD></TR>")
+                tbBody.Append("<TR id='b10c{1}'><TD align='right'><div style='width:70px'>{48}</div></TD></TR>")
+                tbBody.Append("<TR id='b11c{1}'><TD align='right'><div style='width:70px'>{51}</div></TD></TR>")
+                tbBody.Append("<TR id='b12c{1}'><TD align='right'><div style='width:70px'>{54}</div></TD></TR>")
+                tbBody.Append("<TR id='b13c{1}'><TD align='right'><div style='width:70px'>{57}</div></TD></TR>")
+                tbBody.Append("<TR id='b14c{1}'><TD align='right'><div style='width:70px'>{60}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'><div style='width:70px'>{63}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg4'><TD align='right'><div style='width:70px'>{66}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{69}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'><div style='width:70px'>{72}</div></TD></TR>")
+                tbBody.Append("<TR id='e1c{1}'><TD align='right'><div style='width:70px'>{75}</div></TD></TR>")
+                tbBody.Append("<TR id='e2c{1}'><TD align='right'><div style='width:70px'>{78}</div></TD></TR>")
+                tbBody.Append("<TR id='e3c{1}'><TD align='right'><div style='width:70px'>{81}</div></TD></TR>")
+                tbBody.Append("<TR id='e4c{1}'><TD align='right'><div style='width:70px'>{84}</div></TD></TR>")
+                tbBody.Append("<TR id='e5c{1}'><TD align='right'><div style='width:70px'>{87}</div></TD></TR>")
+                tbBody.Append("<TR id='e6c{1}'><TD align='right'><div style='width:70px'>{90}</div></TD></TR>")
+                tbBody.Append("<TR id='e7c{1}'><TD align='right'><div style='width:70px'>{93}</div></TD></TR>")
+                tbBody.Append("<TR id='e8c{1}'><TD align='right'><div style='width:70px'>{96}</div></TD></TR>")
+                tbBody.Append("<TR id='e9c{1}'><TD align='right'><div style='width:70px'>{99}</div></TD></TR>")
+                tbBody.Append("<TR id='e10c{1}'><TD align='right'><div style='width:70px'>{102}</div></TD></TR>")
+                tbBody.Append("<TR id='e11c{1}'><TD align='right'><div style='width:70px'>{105}</div></TD></TR>")
+                tbBody.Append("<TR id='e12c{1}'><TD align='right'><div style='width:70px'>{108}</div></TD></TR>")
+                tbBody.Append("<TR id='e13c{1}'><TD align='right'><div style='width:70px'>{111}</div></TD></TR>")
+                tbBody.Append("<TR id='e14c{1}'><TD align='right'><div style='width:70px'>{114}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'><div style='width:70px'>{117}</div></TD></TR>")
+                tbBody.Append("<TR id='f1c{1}'><TD align='right'><div style='width:70px'>{120}</div></TD></TR>")
+                tbBody.Append("<TR id='f2c{1}'><TD align='right'><div style='width:70px'>{123}</div></TD></TR>")
+                tbBody.Append("<TR id='f3c{1}'><TD align='right'><div style='width:70px'>{126}</div></TD></TR>")
+                tbBody.Append("<TR id='f4c{1}'><TD align='right'><div style='width:70px'>{129}</div></TD></TR>")
+                tbBody.Append("<TR id='f5c{1}'><TD align='right'><div style='width:70px'>{132}</div></TD></TR>")
+                tbBody.Append("<TR id='f6c{1}'><TD align='right'><div style='width:70px'>{135}</div></TD></TR>")
+                tbBody.Append("<TR id='f7c{1}'><TD align='right'><div style='width:70px'>{138}</div></TD></TR>")
+                tbBody.Append("<TR id='f8c{1}'><TD align='right'><div style='width:70px'>{141}</div></TD></TR>")
+                tbBody.Append("<TR id='f9c{1}'><TD align='right'><div style='width:70px'>{144}</div></TD></TR>")
+                tbBody.Append("<TR id='f10c{1}'><TD align='right'><div style='width:70px'>{147}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'><div style='width:70px'>{150}</div></TD></TR>")
+                tbBody.Append("<TR id='g1c{1}'><TD align='right'><div style='width:70px'>{153}</div></TD></TR>")
+                tbBody.Append("<TR id='g2c{1}'><TD align='right'><div style='width:70px'>{156}</div></TD></TR>")
+                tbBody.Append("<TR id='g3c{1}'><TD align='right'><div style='width:70px'>{159}</div></TD></TR>")
+                tbBody.Append("<TR id='g4c{1}'><TD align='right'><div style='width:70px'>{162}</div></TD></TR>")
+                tbBody.Append("<TR id='g5c{1}'><TD align='right'><div style='width:70px'>{165}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold;' class='rbg3'><TD align='right'><div style='width:70px'>{168}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h1c{1}'><TD align='right'><div style='width:70px'>{171}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h2c{1}'><TD align='right'><div style='width:70px'>{174}</div></TD></TR>")
+                tbBody.Append("<TR id='h3c{1}'><TD align='right'><div style='width:70px'>{177}</div></TD></TR>")
+                tbBody.Append("<TR id='h4c{1}'><TD align='right'><div style='width:70px'>{180}</div></TD></TR>")
+                tbBody.Append("<TR id='h5c{1}'><TD align='right'><div style='width:70px'>{183}</div></TD></TR>")
+                tbBody.Append("<TR id='h6c{1}'><TD align='right'><div style='width:70px'>{186}</div></TD></TR>")
+                tbBody.Append("<TR id='h7c{1}'><TD align='right'><div style='width:70px'>{189}</div></TD></TR>")
+                tbBody.Append("<TR id='h8c{1}'><TD align='right'><div style='width:70px'>{192}</div></TD></TR>")
+                tbBody.Append("<TR id='h9c{1}'><TD align='right'><div style='width:70px'>{195}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h10c{1}'><TD align='right'><div style='width:70px'>{198}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h11c{1}'><TD align='right'><div style='width:70px'>{201}</div></TD></TR>")
+                tbBody.Append("<TR id='h12c{1}'><TD align='right'><div style='width:70px'>{204}</div></TD></TR>")
+                tbBody.Append("<TR id='h13c{1}'><TD align='right'><div style='width:70px'>{207}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h14c{1}'><TD align='right'><div style='width:70px'>{210}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h15c{1}'><TD align='right'><div style='width:70px'>{213}</div></TD></TR>")
+                tbBody.Append("<TR id='h16c{1}'><TD align='right'><div style='width:70px'>{216}</div></TD></TR>")
+                tbBody.Append("<TR id='h17c{1}'><TD align='right'><div style='width:70px'>{219}</div></TD></TR>")
+                tbBody.Append("<TR id='h18c{1}'><TD align='right'><div style='width:70px'>{222}</div></TD></TR>")
+                'new line
+                tbBody.Append("<TR id='h51c{1}'><TD align='right'><div style='width:70px'>{324}</div></TD></TR>")
+                tbBody.Append("<TR id='h52c{1}'><TD align='right'><div style='width:70px'>{327}</div></TD></TR>")
+
+                tbBody.Append("<TR style='font-weight:bold' id='h19c{1}'><TD align='right'><div style='width:70px'>{225}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h20c{1}'><TD align='right'><div style='width:70px'>{228}</div></TD></TR>")
+                tbBody.Append("<TR id='h21c{1}'><TD align='right'><div style='width:70px'>{231}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h22c{1}'><TD align='right'><div style='width:70px'>{234}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h23c{1}'><TD align='right'><div style='width:70px'>{237}</div></TD></TR>")
+                tbBody.Append("<TR id='h24c{1}'><TD align='right'><div style='width:70px'>{240}</div></TD></TR>")
+                tbBody.Append("<TR id='h25c{1}'><TD align='right'><div style='width:70px'>{243}</div></TD></TR>")
+                tbBody.Append("<TR id='h26c{1}'><TD align='right'><div style='width:70px'>{246}</div></TD></TR>")
+                tbBody.Append("<TR id='h27c{1}'><TD align='right'><div style='width:70px'>{249}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h28c{1}'><TD align='right'><div style='width:70px'>{252}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h29c{1}'><TD align='right'><div style='width:70px'>{255}</div></TD></TR>")
+                tbBody.Append("<TR id='h30c{1}'><TD align='right'><div style='width:70px'>{258}</div></TD></TR>")
+                tbBody.Append("<TR id='h31c{1}'><TD align='right'><div style='width:70px'>{261}</div></TD></TR>")
+                tbBody.Append("<TR id='h32c{1}'><TD align='right'><div style='width:70px'>{264}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h33c{1}'><TD align='right'><div style='width:70px'>{267}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h34c{1}'><TD align='right'><div style='width:70px'>{270}</div></TD></TR>")
+                tbBody.Append("<TR id='h35c{1}'><TD align='right'><div style='width:70px'>{273}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h36c{1}'><TD align='right'><div style='width:70px'>{276}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h37c{1}'><TD align='right'><div style='width:70px'>{279}</div></TD></TR>")
+                tbBody.Append("<TR id='h38c{1}'><TD align='right'><div style='width:70px'>{282}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h39c{1}'><TD align='right'><div style='width:70px'>{285}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h40c{1}'><TD align='right'><div style='width:70px'>{288}</div></TD></TR>")
+                tbBody.Append("<TR id='h41c{1}'><TD align='right'><div style='width:70px'>{291}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h42c{1}'><TD align='right'><div style='width:70px'>{294}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h43c{1}'><TD align='right'><div style='width:70px'>{297}</div></TD></TR>")
+                tbBody.Append("<TR id='h44c{1}'><TD align='right'><div style='width:70px'>{300}</div></TD></TR>")
+                'new line
+                tbBody.Append("<TR id='h53c{1}'><TD align='right'><div style='width:70px'>{330}</div></TD></TR>")
+                tbBody.Append("<TR style='font-weight:bold' id='h45c{1}'><TD align='right'><div style='width:70px'>{303}</div></TD></TR>")
+
+                tbBody.Append("<TR id='h46c{1}'><TD align='right'><div style='width:70px'>{306}</div></TD></TR>")
+                tbBody.Append("<TR id='h47c{1}'><TD align='right'><div style='width:70px'>{309}</div></TD></TR>")
+                tbBody.Append("<TR id='h48c{1}'><TD align='right'><div style='width:70px'>{312}</div></TD></TR>")
+                tbBody.Append("<TR id='h49c{1}'><TD align='right'><div style='width:70px'>{315}</div></TD></TR>")
+                tbBody.Append("<TR id='h50c{1}'><TD align='right'><div style='width:70px'>{318}</div></TD></TR>")
+                'tbBody.Append("<TR style='font-weight:bold;' class='rbg1'><TD align='right'><div style='width:70px'>{321}</div></TD></TR>")
+
+                tbBody.Append("<tr style='font-weight:bold;' class='rbg1'><td align='right'><div style='width:70px;padding-left:5px;' class='pptk'>{321}</div></td></tr>")
+                Return tbBody.ToString
+            Case 3
+                Dim tbFoot As New StringBuilder
+                'tbFoot.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{0}</div></TD></TR>")
+                'tbFoot.Append("<TR style='font-weight:bold;' class='rbg2'><TD align='right'><div style='width:70px'>{1}</div></TD></TR>")
+                tbFoot.Append("</TABLE>")
+                Return tbFoot.ToString
+            Case Else
+                Return ""
+        End Select
+    End Function
+
+#End Region
+
 #Region "Full Performance"
     Public Shared Function htmlFullPfmTopic() As String
         Dim sb As New StringBuilder

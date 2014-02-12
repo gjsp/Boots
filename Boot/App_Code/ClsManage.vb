@@ -18,7 +18,7 @@ Public Class ClsManage
         NonLFL
         Closed
         NewStore
-        OtherBusincess
+        OtherBusiness
     End Enum
 
     Enum growthType

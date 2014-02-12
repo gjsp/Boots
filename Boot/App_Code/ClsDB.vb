@@ -8020,7 +8020,7 @@ Public Class ClsDB
                     "from " + sqlTbl + " dd,costcenter cb where dd.costcenter_id = cb.costcenter_id and dd.month_time = @lastyear " & _
                     "and dd.costcenter_id in(SELECT dd.costcenter_id " + sqlCondition1 + ") order by ptype DESC"
 
-            Case ClsManage.lflType.OtherBusincess.ToString
+            Case ClsManage.lflType.OtherBusiness.ToString
                 sqlPtype = "ptype = 'OB '+ cast( year(@thisyear) as varchar) "
                 sqlCondition1 = "from " + sqlTbl + " dd,costcenter cb,store sto " & _
                     "where dd.costcenter_id = cb.costcenter_id  and cb.costcenter_store = sto.store_id and sto.store_other = 'Y' and dd.month_time = @thisyear and ( cb.costcenter_blockdt is null or cb.costcenter_blockdt > @thisyear2 ) AND (sto.store_id = @store_id or @store_id = '')"
@@ -8603,7 +8603,7 @@ Public Class ClsDB
                 sql_condition = "from v_mtd('" + rate + "') dd,costcenter cb,store sto3 " & _
 "where dd.costcenter_id = cb.costcenter_id  and cb.costcenter_store = sto3.store_id and sto3.store_other = 'N' and dd.month_time = @thisyear and ( cb.costcenter_blockdt is null or cb.costcenter_blockdt > @thisyear2 ) " & _
 "and cb.costcenter_opendt >= @openyear "
-            Case "OtherBusincess"
+            Case "OtherBusiness"
                 sql_condition = "from v_mtd('" + rate + "') dd,costcenter cb,store sto4 " & _
 "where dd.costcenter_id = cb.costcenter_id  and cb.costcenter_store = sto4.store_id and sto4.store_other = 'Y' and dd.month_time = @thisyear and ( cb.costcenter_blockdt is null or cb.costcenter_blockdt > @thisyear2 ) "
         End Select

@@ -1,6 +1,7 @@
-﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false" CodeFile="report_LFL_store.aspx.vb" Inherits="report_LFL_store" EnableEventValidation="true" %>
+﻿<%@ Page Title="" Language="VB" MasterPageFile="~/MasterPage.master" AutoEventWireup="false" CodeFile="report_LFL_compare.aspx.vb" Inherits="report_LFL_compare" EnableEventValidation="true" %>
 
-<%@ Register Src="~/uc/ucLFLStore.ascx" TagPrefix="uc1" TagName="ucLFLStore" %>
+<%@ Register Src="~/uc/ucLFLCompare.ascx" TagPrefix="uc1" TagName="ucLFLCompare" %>
+
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
@@ -10,7 +11,7 @@
 
 
     <div style="padding: 10px 10px;">
-        <strong>LFL By Store Report</strong>
+        <strong>LFL Compare Report</strong>
         <span style="font-size:11px">
         (Note : All number represents performance at retail store contribution level only, excluding stock loss & obsolete provision at warehouse, supplier income and other central cost allocation which are A&P, head office cost)
         </span>
@@ -24,6 +25,12 @@
         <asp:ListItem Text = "Other Business" Value="OtherBusiness"></asp:ListItem>
         </asp:DropDownList>
          </div>
+        
+        <div style="float: left; margin-right: .5cm">
+            Format
+            <asp:DropDownList ID="ddlFormat" runat="server" CssClass="select2">
+            </asp:DropDownList>
+        </div>
 
         <div style="float: left; margin-right: .5cm">
             By
@@ -52,7 +59,7 @@
         </asp:DropDownList>
          </div>
         <asp:Button ID="SearchBt" runat="server" Text="Search" Height="23px"/>
-       <uc1:ucLFLStore runat="server" ID="ucLFLStore" />
+        <uc1:ucLFLCompare runat="server" ID="ucLFLCompare" />
     </div>           
 </asp:Content>
 
